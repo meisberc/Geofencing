@@ -4,4 +4,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_tour_start">TourStartActivity</string>
+    <string name="title_activity_poi">POIActivity</string>
 </resources>
