@@ -1,16 +1,52 @@
 package lbs.de.geofencing;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    public static final String TOURNAME = "geofencing.tourName";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        final ListView listView = (ListView) findViewById(R.id.listView);
+
+        //Wird später ersetzt durch den Aufruf aus der DB
+        final ArrayList<String> list = new ArrayList<>();
+        list.add("Test1");
+        list.add("Test2");
+
+        //ArrayAdapter um die ListView zu befüllen
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,list);
+        listView.setAdapter(adapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String name = list.get(position);
+                startTourStartActivity(name);
+            }
+        });
+    }
+
+    public void startTourStartActivity(String name)
+    {
+        Intent i = new Intent(this, TourStartActivity.class);
+        i.putExtra(TOURNAME, name);
+        startActivity(i);
     }
 
     @Override

@@ -11,6 +11,10 @@ public class TourStartActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tour_start);
+
+        //Tourname aus Intent wieder auslesen
+        String name = getIntent().getExtras().getString(MainActivity.TOURNAME);
+
     }
 
     @Override
