@@ -21,6 +21,7 @@ public class DataBase extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "gg";
     private Context myContext;
     private SQLiteDatabase db;
+    private Cursor c;
 
     public DataBase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -62,22 +63,34 @@ public class DataBase extends SQLiteOpenHelper {
     }
 
     protected ArrayList<String> getTouren(){
-        Cursor c=db.rawQuery("SELECT Name FROM Touren", null);
-        ArrayList<String> list=new ArrayList<>();
+        Cursor temp=setQuerry("SELECT Name FROM Touren");
+        return addDataToList(temp);
+    }
+
+    private ArrayList<String> addDataToList(Cursor c){
+        ArrayList<String> data=new ArrayList<>();
         int i=1;
 
         if(c.moveToFirst()){
             c.moveToFirst();
-            Log.d("The Column values are: ", c.getString(0));
-            list.add(c.getString(0));
+            data.add(c.getString(0));
             while (c.moveToNext()){
-                list.add(c.getString(0));
-                Log.d("The Column values are: ", c.getString(0));
+                data.add(c.getString(0));
             }
 
         }
         c.close();
-        return list;
+        return data;
+    }
+
+    private Cursor setQuerry(String querry){
+        c=db.rawQuery(querry,null);
+        return c;
+    }
+
+    protected ArrayList<String> getPoints(){
+        Cursor test=setQuerry("SELECT Name FROM PointsOfInterest");
+        return addDataToList(test);
     }
 
 }

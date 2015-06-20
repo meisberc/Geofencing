@@ -2,8 +2,10 @@ package lbs.de.geofencing;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 public class TourStartActivity extends AppCompatActivity {
 
@@ -13,7 +15,8 @@ public class TourStartActivity extends AppCompatActivity {
         setContentView(R.layout.activity_tour_start);
 
         //Tourname aus Intent wieder auslesen
-        String name = getIntent().getExtras().getString(MainActivity.TOURNAME);
+        //String name = getIntent().getExtras().getString(MainActivity.TOURNAME);
+        ((TextView)findViewById(R.id.tourName)).setText(getIntent().getExtras().getString(MainActivity.TOURNAME));
 
     }
 

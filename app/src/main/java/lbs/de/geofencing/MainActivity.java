@@ -3,6 +3,7 @@ package lbs.de.geofencing;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,8 +43,6 @@ public class MainActivity extends AppCompatActivity {
         for(int i=0;i<tempList.size();i++){
             list.add(tempList.get(i));
         }
-        list.add("Test1");
-        list.add("Test2");
 
         //ArrayAdapter um die ListView zu befüllen
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,list);
@@ -52,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String name = list.get(position);
-                startTourStartActivity(name);
+                //String name = list.get(position);
+                startTourStartActivity(list.get(position));
             }
         });
     }
