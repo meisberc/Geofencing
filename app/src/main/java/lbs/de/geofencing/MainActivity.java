@@ -10,6 +10,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 
@@ -22,10 +26,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        DataBase myDB=new DataBase(this);
+        try {
+            myDB.copyDataBase();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         final ListView listView = (ListView) findViewById(R.id.listView);
 
         //Wird später ersetzt durch den Aufruf aus der DB
         final ArrayList<String> list = new ArrayList<>();
+        ArrayList<String> tempList;
+        tempList=myDB.getTouren();
+        for(int i=0;i<tempList.size();i++){
+            list.add(tempList.get(i));
+        }
         list.add("Test1");
         list.add("Test2");
 
