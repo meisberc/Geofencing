@@ -1,28 +1,95 @@
 package lbs.de.geofencing;
 
-import android.support.v4.app.FragmentActivity;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import GPSTracker.GPSTracker;
 
 public class MapsActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private GPSTracker tracker;
+    Location location;
+    private boolean mapMoved;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+
+        setupActivity();
+
+        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            @Override
+            public void onMyLocationChange(Location location) {
+                if (!mapMoved) {
+                    centerMap();
+                }
+
+            }
+        });
+
+
+        mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+                mapMoved = true;
+            }
+        });
+
+        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                if (mapMoved) {
+                    mapMoved = false;
+                }
+                return false;
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+    }
+
+    public void setupActivity()
+    {
+        GoogleMapOptions options = new GoogleMapOptions();
+        options.mapType(GoogleMap.MAP_TYPE_NORMAL)
+                .compassEnabled(false)
+                .rotateGesturesEnabled(true)
+                .tiltGesturesEnabled(false)
+                .mapToolbarEnabled(true);
+        mMap.setMyLocationEnabled(true);
+
+        tracker = new GPSTracker(this);
+        location = tracker.getLocation();
+        CameraUpdate zoom=CameraUpdateFactory.zoomTo(18);
+        mMap.animateCamera(zoom);
+
+        centerMap();
+    }
+
+    public void centerMap()
+    {
+        CameraUpdate center=
+                CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),
+                        location.getLongitude()));
+
+        mMap.moveCamera(center);
     }
 
     /**

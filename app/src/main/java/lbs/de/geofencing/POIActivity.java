@@ -1,17 +1,32 @@
 package lbs.de.geofencing;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class POIActivity extends AppCompatActivity {
 
+    private String name;
+    private ActionBar actionBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_poi);
+
+        Bundle b = getIntent().getExtras();
+        name = b.getString(MainActivity.TOURNAME);
+
+        actionBar = getSupportActionBar();
+        setupActivity();
     }
+
+    public void setupActivity() {
+        actionBar.setTitle(name);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

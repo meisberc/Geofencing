@@ -1,10 +1,9 @@
-package lbs.de.geofencing;
+package Database;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,12 +37,13 @@ public class DataBase extends SQLiteOpenHelper {
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
     }
-    protected void copyDataBase() throws IOException {
+    public void copyDataBase(Context context) throws IOException {
 
         // Open your local db as the input stream
         InputStream myInput = myContext.getAssets().open(DATABASE_NAME);
         // Path to the just created empty db
-        String outFileName =  "/data/data/"
+        //String outFileName =  "/data/data/"
+        String outFileName =  context.getFilesDir().getPath()
                 +myContext.getApplicationContext().getPackageName()
                 + "/databases/" + DATABASE_NAME;
         // Open the empty db as the output stream
@@ -62,14 +62,14 @@ public class DataBase extends SQLiteOpenHelper {
         myInput.close();
     }
 
-    protected ArrayList<String> getTouren(){
+    public ArrayList<String> getTouren(){
         Cursor temp=setQuerry("SELECT Name FROM Touren");
         return addDataToList(temp);
     }
 
     private ArrayList<String> addDataToList(Cursor c){
         ArrayList<String> data=new ArrayList<>();
-        int i=1;
+        //int i=1;
 
         if(c.moveToFirst()){
             c.moveToFirst();

@@ -50,5 +50,6 @@
         android:layout_height="wrap_content"
         android:text="Starte Tour"
         android:id="@+id/startTour"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:onClick="startTour"/>
 </LinearLayout>

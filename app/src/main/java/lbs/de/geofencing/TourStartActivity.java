@@ -1,23 +1,47 @@
 package lbs.de.geofencing;
 
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.ActionBar;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
-public class TourStartActivity extends AppCompatActivity {
+public class TourStartActivity extends AppCompatActivity  {
+
+    private String name;
+    private ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tour_start);
 
+        actionBar = getSupportActionBar();
+
         //Tourname aus Intent wieder auslesen
+        Bundle b = getIntent().getExtras();
         //String name = getIntent().getExtras().getString(MainActivity.TOURNAME);
         ((TextView)findViewById(R.id.tourName)).setText(getIntent().getExtras().getString(MainActivity.TOURNAME));
 
+        setupActivity();
+    }
+
+    public void startTour(View view)
+    {
+        Intent i = new Intent(this, MapsActivity.class);
+        i.putExtra(MainActivity.TOURNAME, name);
+        startActivity(i);
+    }
+
+    public void setupActivity()
+    {
+        actionBar.setDisplayShowTitleEnabled(false);
+        TextView tourName = (TextView) findViewById(R.id.tourName);
+        tourName.setText(name);
     }
 
     @Override

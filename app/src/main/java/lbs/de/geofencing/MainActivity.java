@@ -3,7 +3,6 @@ package lbs.de.geofencing;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,11 +10,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
+
+import Database.DataBase;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -29,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
         DataBase myDB=new DataBase(this);
         try {
-            myDB.copyDataBase();
+            myDB.copyDataBase(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -45,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //ArrayAdapter um die ListView zu befüllen
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,list);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -57,10 +55,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void startTourStartActivity(String name)
-    {
+    public void startTourStartActivity(String name) {
         Intent i = new Intent(this, TourStartActivity.class);
-        i.putExtra(TOURNAME, name);
+        i.putExtra(MainActivity.TOURNAME, name);
         startActivity(i);
     }
 
