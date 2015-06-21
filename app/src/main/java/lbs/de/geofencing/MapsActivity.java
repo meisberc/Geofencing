@@ -3,6 +3,7 @@ package lbs.de.geofencing;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.WindowManager;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -33,9 +34,8 @@ public class MapsActivity extends FragmentActivity {
         mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
             @Override
             public void onMyLocationChange(Location location) {
-                if (!mapMoved) {
-                    centerMap();
-                }
+                centerMap(location);
+
 
             }
         });
@@ -67,6 +67,7 @@ public class MapsActivity extends FragmentActivity {
 
     public void setupActivity()
     {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         GoogleMapOptions options = new GoogleMapOptions();
         options.mapType(GoogleMap.MAP_TYPE_NORMAL)
                 .compassEnabled(false)
@@ -76,14 +77,22 @@ public class MapsActivity extends FragmentActivity {
         mMap.setMyLocationEnabled(true);
 
         tracker = new GPSTracker(this);
-        location = tracker.getLocation();
+        if(!tracker.canGetLocation())
+        {
+            tracker.showSettingsAlert();
+        }
+        else
+        {
+            location = tracker.getLocation();
+            centerMap(location);
+        }
         CameraUpdate zoom=CameraUpdateFactory.zoomTo(18);
         mMap.animateCamera(zoom);
 
-        centerMap();
+
     }
 
-    public void centerMap()
+    public void centerMap(Location location)
     {
         CameraUpdate center=
                 CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),

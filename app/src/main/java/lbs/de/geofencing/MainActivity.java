@@ -10,13 +10,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
-import Database.DataBase;
+import Database.DbAdapter;
 
 
 public class MainActivity extends AppCompatActivity {
+
+
 
     public static final String TOURNAME = "geofencing.tourName";
 
@@ -25,22 +26,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DataBase myDB=new DataBase(this);
-        try {
-            myDB.copyDataBase(this);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        DbAdapter dbAdapter = new DbAdapter(this);
+        dbAdapter.openWrite();
+        dbAdapter.copyDb();
 
         final ListView listView = (ListView) findViewById(R.id.listView);
 
         //Wird später ersetzt durch den Aufruf aus der DB
         final ArrayList<String> list = new ArrayList<>();
         ArrayList<String> tempList;
-        tempList=myDB.getTouren();
+        tempList=dbAdapter.getTouren();
         for(int i=0;i<tempList.size();i++){
             list.add(tempList.get(i));
         }
+        dbAdapter.close();
 
         //ArrayAdapter um die ListView zu befüllen
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
