@@ -18,6 +18,9 @@ public class DbAdapter {
 
     public DbAdapter(Context context) {
         dataBase = new DataBase(context);
+        openWrite();
+        copyDb();
+        close();
     }
 
     public void openWrite() throws SQLException {

@@ -17,7 +17,6 @@ public class DataBase extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "gg";
     private Context myContext;
-    private SQLiteDatabase db;
 
 
     public DataBase(Context context) {
@@ -38,7 +37,7 @@ public class DataBase extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public void copyDataBase() throws IOException {
+    protected void copyDataBase() throws IOException {
 
         // Open your local db as the input stream
         InputStream myInput = myContext.getAssets().open(DATABASE_NAME);
@@ -56,7 +55,6 @@ public class DataBase extends SQLiteOpenHelper {
             myOutput.write(buffer, 0, length);
 
         }
-        db = this.getReadableDatabase();
         // Close the streams
         myOutput.flush();
         myOutput.close();

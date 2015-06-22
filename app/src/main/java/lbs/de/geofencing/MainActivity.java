@@ -27,19 +27,22 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         DbAdapter dbAdapter = new DbAdapter(this);
-        dbAdapter.openWrite();
-        dbAdapter.copyDb();
+
 
         final ListView listView = (ListView) findViewById(R.id.listView);
 
         //Wird später ersetzt durch den Aufruf aus der DB
         final ArrayList<String> list = new ArrayList<>();
         ArrayList<String> tempList;
+
+        dbAdapter.openRead();
         tempList=dbAdapter.getTouren();
+        dbAdapter.close();
+
         for(int i=0;i<tempList.size();i++){
             list.add(tempList.get(i));
         }
-        dbAdapter.close();
+
 
         //ArrayAdapter um die ListView zu befüllen
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
