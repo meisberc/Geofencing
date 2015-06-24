@@ -1,10 +1,9 @@
 package lbs.de.geofencing;
 
-import android.support.v7.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,6 +11,7 @@ import android.widget.TextView;
 
 public class TourStartActivity extends AppCompatActivity  {
 
+    private static final int REQUEST_CODE = 1;
     private String name;
     private ActionBar actionBar;
 
@@ -34,9 +34,19 @@ public class TourStartActivity extends AppCompatActivity  {
     {
         Intent i = new Intent(this, MapsActivity.class);
         i.putExtra(MainActivity.TOURNAME, name);
-        startActivity(i);
+        startActivityForResult(i, REQUEST_CODE);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == REQUEST_CODE) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                name = data.getExtras().getString(MainActivity.TOURNAME);
+            }
+        }
+    }
     public void setupActivity()
     {
         actionBar.setDisplayShowTitleEnabled(false);

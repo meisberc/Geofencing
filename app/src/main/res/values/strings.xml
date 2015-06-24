@@ -3,7 +3,10 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_maps">Map</string>
-    <string name="title_activity_tour_start">TourStartActivity</string>
-    <string name="title_activity_poi">POIActivity</string>
+    <string name="title_activity_maps" translatable="false">Map</string>
+    <string name="title_activity_tour_start" translatable="false">TourStartActivity</string>
+    <string name="title_activity_poi" translatable="false">POIActivity</string>
+    <string name="gps_settings">GPS is settings</string>
+    <string name="gps_not_enabled">GPS is not enabled. Do you want to go to settings menu?</string>
+    <string name="cancel">Cancel</string>
 </resources>

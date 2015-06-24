@@ -1,9 +1,18 @@
 package lbs.de.geofencing;
 
+import android.app.AlertDialog;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -13,14 +22,12 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import GPSTracker.GPSTracker;
+import gpstracker.GPSTracker;
 
 public class MapsActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private GPSTracker tracker;
-    Location location;
-    private boolean mapMoved;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +51,7 @@ public class MapsActivity extends FragmentActivity {
         setUpMapIfNeeded();
     }
 
-    public void setupActivity()
-    {
+    public void setupActivity() {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         GoogleMapOptions options = new GoogleMapOptions();
         options.mapType(GoogleMap.MAP_TYPE_NORMAL)
@@ -55,29 +61,28 @@ public class MapsActivity extends FragmentActivity {
                 .mapToolbarEnabled(true);
         mMap.setMyLocationEnabled(true);
 
-        tracker = new GPSTracker(this);
-        if(!tracker.canGetLocation())
-        {
-            tracker.showSettingsAlert();
-        }
-        else
-        {
-            location = tracker.getLocation();
+        GPSTracker tmpTracker = new GPSTracker();
+        if (!tmpTracker.canGetLocation()) {
+            showSettingsAlert();
+        } else {
+            Location location = tmpTracker.getLocation();
             centerMap(location);
         }
-        CameraUpdate zoom=CameraUpdateFactory.zoomTo(18);
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(18);
         mMap.animateCamera(zoom);
-
-
+        Intent intent= new Intent(this, GPSTracker.class);
+        bindService(intent, mConnection,
+                Context.BIND_AUTO_CREATE);
     }
 
-    public void centerMap(Location location)
-    {
-        CameraUpdate center=
-                CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),
-                        location.getLongitude()));
+    public void centerMap(Location location) {
+        if (location != null) {
+            CameraUpdate center =
+                    CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),
+                            location.getLongitude()));
 
-        mMap.moveCamera(center);
+            mMap.moveCamera(center);
+        }
     }
 
     /**
@@ -116,5 +121,48 @@ public class MapsActivity extends FragmentActivity {
      */
     private void setUpMap() {
         mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+    }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        public void onServiceConnected(ComponentName className,
+                                       IBinder binder) {
+            gpstracker.GPSTracker.MyBinder b = (gpstracker.GPSTracker.MyBinder) binder;
+            tracker = b.getService();
+            Toast.makeText(MapsActivity.this, "Connected", Toast.LENGTH_SHORT)
+                    .show();
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            tracker = null;
+        }
+    };
+
+    public void showSettingsAlert(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+
+        // Setting Dialog Title
+        alertDialog.setTitle(R.string.gps_settings);
+
+        // Setting Dialog Message
+        alertDialog.setMessage(R.string.gps_not_enabled);
+
+        // On pressing Settings button
+        alertDialog.setPositiveButton(R.string.action_settings, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog,int which) {
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        });
+
+        // on pressing cancel button
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        // Showing Alert Message
+        alertDialog.show();
     }
 }

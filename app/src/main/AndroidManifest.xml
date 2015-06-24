@@ -42,15 +42,27 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps" />
+            android:label="@string/title_activity_maps"
+            android:parentActivityName=".TourStartActivity">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".TourStartActivity"/>
+        </activity>
+
         <activity
             android:name=".TourStartActivity"
             android:label="@string/title_activity_tour_start" >
         </activity>
         <activity
             android:name=".POIActivity"
-            android:label="@string/title_activity_poi" >
+            android:label="@string/title_activity_poi"
+            android:parentActivityName=".MapsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MapsActivity"/>
         </activity>
+        <service android:name="gpstracker.GPSTracker">
+        </service>
     </application>
 
 </manifest>

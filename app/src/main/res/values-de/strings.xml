@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Geführte Touren</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="gps_not_enabled">GPS ist nicht aktiviert. Möchten Sie es in den Einstellungen aktivieren?</string>
+    <string name="gps_settings">GPS Einstellung</string>
+    <string name="hello_world">Hallo Welt</string>
+    <string name="cancel">Abbrechen</string>
+</resources>
