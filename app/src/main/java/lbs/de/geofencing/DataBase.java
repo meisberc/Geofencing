@@ -1,4 +1,4 @@
-package Database;
+package lbs.de.geofencing;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
