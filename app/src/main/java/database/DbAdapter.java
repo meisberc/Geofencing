@@ -36,7 +36,7 @@ public class DbAdapter {
     }
 
     public ArrayList<String> getTouren() {
-        Cursor temp = setQuerry("SELECT 'Name' FROM 'Touren'");
+        Cursor temp = setQuerry("SELECT Name FROM Touren");
         return addDataToList(temp);
     }
 
@@ -61,8 +61,11 @@ public class DbAdapter {
         return c;
     }
 
-    protected ArrayList<String> getPoints() {
-        Cursor test = setQuerry("SELECT Name FROM PointsOfInterest");
+    public ArrayList<String> getPoints(String tourName) {
+        Cursor test = setQuerry("SELECT p.name FROM PointsOfInterest as p" +
+                " LEFT JOIN PointsOfInterestAndTouren as pt on p._id = pt.POI_ID" +
+                " LEFT JOIN Touren as t on t._id = pt.Touren_ID\n" +
+                " WHERE t.Name LIKE \""+tourName+"\";");
         return addDataToList(test);
     }
 
