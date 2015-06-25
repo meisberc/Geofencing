@@ -8,8 +8,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import db.DbAdapter;
-import db.Tour;
+import database.DbAdapter;
+import database.Tour;
 
 public class TourStartActivity extends AppCompatActivity {
 

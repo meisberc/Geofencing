@@ -17,7 +17,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import tracker.GPSTracker;
+import gpstracker.GPSTracker;
 
 public class MapsActivity extends FragmentActivity {
 
