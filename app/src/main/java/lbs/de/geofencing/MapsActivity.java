@@ -61,7 +61,7 @@ public class MapsActivity extends FragmentActivity {
                 .mapToolbarEnabled(true);
         mMap.setMyLocationEnabled(true);
 
-        GPSTracker tmpTracker = new GPSTracker();
+        GPSTracker tmpTracker = new GPSTracker(this);
         if (!tmpTracker.canGetLocation()) {
             showSettingsAlert();
         } else {
@@ -71,8 +71,8 @@ public class MapsActivity extends FragmentActivity {
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(18);
         mMap.animateCamera(zoom);
         Intent intent= new Intent(this, GPSTracker.class);
-        bindService(intent, mConnection,
-                Context.BIND_AUTO_CREATE);
+       /* bindService(intent, mConnection,
+                Context.BIND_AUTO_CREATE);*/
     }
 
     public void centerMap(Location location) {
@@ -123,7 +123,7 @@ public class MapsActivity extends FragmentActivity {
         mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
     }
 
-    private ServiceConnection mConnection = new ServiceConnection() {
+   /* private ServiceConnection mConnection = new ServiceConnection() {
 
         public void onServiceConnected(ComponentName className,
                                        IBinder binder) {
@@ -136,7 +136,7 @@ public class MapsActivity extends FragmentActivity {
         public void onServiceDisconnected(ComponentName className) {
             tracker = null;
         }
-    };
+    };*/
 
     public void showSettingsAlert(){
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
