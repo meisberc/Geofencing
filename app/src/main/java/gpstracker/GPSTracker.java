@@ -1,4 +1,4 @@
-package lbs.de.geofencing;
+package gpstracker;
 
 import android.app.AlertDialog;
 import android.app.Service;
