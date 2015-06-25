@@ -61,8 +61,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MapsActivity"/>
         </activity>
-        <service android:name="gpstracker.GPSTracker">
-        </service>
+        <!--<service android:name="gpstracker.GPSTracker">
+        </service>-->
     </application>
 
 </manifest>
