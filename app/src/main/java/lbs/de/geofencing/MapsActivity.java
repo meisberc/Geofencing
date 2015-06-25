@@ -56,7 +56,7 @@ public class MapsActivity extends FragmentActivity {
                 .mapToolbarEnabled(true);
         mMap.setMyLocationEnabled(true);
 
-        GPSTracker tmpTracker = new GPSTracker(this);
+        GPSTracker tmpTracker = new GPSTracker();
         if (!tmpTracker.canGetLocation()) {
             showSettingsAlert();
         } else {
