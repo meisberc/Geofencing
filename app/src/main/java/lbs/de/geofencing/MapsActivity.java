@@ -17,20 +17,29 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+
+import database.DbAdapter;
+import database.Point;
 import gpstracker.GPSTracker;
 
 public class MapsActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private GPSTracker tracker;
+    private DbAdapter dbAdapter = MainActivity.getDbAdapter();
+    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+        name = getIntent().getExtras().getString(MainActivity.TOURNAME);
 
         setupActivity();
+        //dbAdapter.openRead();
+        //ArrayList<Point> points = dbAdapter.getPoints(name);
 
         mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
             @Override

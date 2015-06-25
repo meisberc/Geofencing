@@ -42,15 +42,11 @@ public class DbAdapter {
 
     private ArrayList<String> addDataToList(Cursor c) {
         ArrayList<String> data = new ArrayList<>();
-        //int i=1;
-        if (c.moveToFirst()) {
             c.moveToFirst();
-            data.add(c.getString(0));
-            while (c.moveToNext()) {
+
+            while (!c.isAfterLast()) {
                 data.add(c.getString(0));
             }
-
-        }
         c.close();
         return data;
     }
@@ -61,12 +57,33 @@ public class DbAdapter {
         return c;
     }
 
-    public ArrayList<String> getPoints(String tourName) {
+    public ArrayList<Point> getPoints(String tourName) {
         Cursor test = setQuerry("SELECT p.name FROM PointsOfInterest as p" +
                 " LEFT JOIN PointsOfInterestAndTouren as pt on p._id = pt.POI_ID" +
                 " LEFT JOIN Touren as t on t._id = pt.Touren_ID\n" +
-                " WHERE t.Name LIKE \""+tourName+"\";");
-        return addDataToList(test);
+                " WHERE t.Name LIKE \"" + tourName + "\";");
+        return addPointsToList(test);
+    }
+
+    private ArrayList<Point> addPointsToList(Cursor c) {
+        ArrayList<Point> data = new ArrayList<>();
+        c.moveToFirst();
+
+        while (!c.isAfterLast()) {
+            Point p = cursorToEntryPoints(c);
+            data.add(p);
+        }
+        c.close();
+        return data;
+    }
+
+    private Point cursorToEntryPoints(Cursor cursor)
+    {
+       /* Point p = new Point(cursor....);
+        return p;
+
+        */
+        return null;
     }
 
     public void copyDb() {
