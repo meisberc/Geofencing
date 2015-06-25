@@ -21,27 +21,22 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String TOURNAME = "geofencing.tourName";
 
+    private static DbAdapter dbAdapter;
+    private String name;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DbAdapter dbAdapter = new DbAdapter(this);
+        dbAdapter = new DbAdapter(this);
 
 
         final ListView listView = (ListView) findViewById(R.id.listView);
 
-        //Wird später ersetzt durch den Aufruf aus der DB
-        final ArrayList<String> list = new ArrayList<>();
-        ArrayList<String> tempList;
-
         dbAdapter.openRead();
-        tempList=dbAdapter.getTouren();
-        dbAdapter.close();
+        final ArrayList<String> list = dbAdapter.getTouren();
 
-        for(int i=0;i<tempList.size();i++){
-            list.add(tempList.get(i));
-        }
 
 
         //ArrayAdapter um die ListView zu befüllen
@@ -51,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //String name = list.get(position);
                 startTourStartActivity(list.get(position));
             }
         });
@@ -83,5 +77,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        dbAdapter.close();
+    }
+
+    public static DbAdapter getDbAdapter() {
+        return dbAdapter;
     }
 }

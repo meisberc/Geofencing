@@ -9,35 +9,43 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-public class TourStartActivity extends AppCompatActivity  {
+import database.DbAdapter;
+import database.Tour;
 
-    private static final int REQUEST_CODE = 1;
+public class TourStartActivity extends AppCompatActivity {
+
+    //    private static final int REQUEST_CODE = 1;
     private String name;
-    private ActionBar actionBar;
+    private Tour tour;
+    private DbAdapter dbAdapter = MainActivity.getDbAdapter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tour_start);
 
-        actionBar = getSupportActionBar();
-
         //Tourname aus Intent wieder auslesen
-        Bundle b = getIntent().getExtras();
-        //String name = getIntent().getExtras().getString(MainActivity.TOURNAME);
-        ((TextView)findViewById(R.id.tourName)).setText(getIntent().getExtras().getString(MainActivity.TOURNAME));
+        name = getIntent().getExtras().getString(MainActivity.TOURNAME);
+        ((TextView) findViewById(R.id.tourName)).setText(name);
 
-        setupActivity();
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Tour: " + name);
+        }
+
+        /*Hier wird tour mit einem Aufruf aus der Datenbank initialisiert
+        und die Werte des Objekts den Textfeldern zugeordnet
+         */
+
+        //tour = dbAdapter....
     }
 
-    public void startTour(View view)
-    {
+    public void startTour(View view) {
         Intent i = new Intent(this, MapsActivity.class);
         i.putExtra(MainActivity.TOURNAME, name);
-        startActivityForResult(i, REQUEST_CODE);
+        startActivity(i);
     }
 
-    @Override
+   /* @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
         if (requestCode == REQUEST_CODE) {
@@ -46,13 +54,7 @@ public class TourStartActivity extends AppCompatActivity  {
                 name = data.getExtras().getString(MainActivity.TOURNAME);
             }
         }
-    }
-    public void setupActivity()
-    {
-        actionBar.setDisplayShowTitleEnabled(false);
-        TextView tourName = (TextView) findViewById(R.id.tourName);
-        tourName.setText(name);
-    }
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
