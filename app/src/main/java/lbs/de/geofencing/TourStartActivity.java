@@ -2,15 +2,14 @@ package lbs.de.geofencing;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import database.DbAdapter;
-import database.Tour;
+import db.DbAdapter;
+import db.Tour;
 
 public class TourStartActivity extends AppCompatActivity {
 

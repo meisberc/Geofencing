@@ -12,7 +12,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import database.DbAdapter;
+import db.DbAdapter;
 
 
 public class MainActivity extends AppCompatActivity {
