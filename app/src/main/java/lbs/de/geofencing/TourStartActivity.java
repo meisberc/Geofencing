@@ -9,8 +9,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import database.DbAdapter;
-import gpstracker.database.DbAdapter;
-import gpstracker.database.Tour;
+import database.Tour;
 
 public class TourStartActivity extends AppCompatActivity {
 

@@ -13,8 +13,6 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 import database.DbAdapter;
-import gpstracker.database.DbAdapter;
-
 
 public class MainActivity extends AppCompatActivity {
 
