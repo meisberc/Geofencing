@@ -1,5 +1,7 @@
 package database;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by Christian Meisberger on 25.06.2015.
  */
@@ -8,12 +10,14 @@ public class Point {
     private String desc;
     private double latitude;
     private double longitude;
+    private Bitmap bitmap;
 
-    public Point(String name, String desc, double longitude, double latitude) {
+    public Point(String name, String desc, double longitude, double latitude, Bitmap bitmap) {
         this.name = name;
         this.desc = desc;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.bitmap = bitmap;
     }
 
     public String getName() {

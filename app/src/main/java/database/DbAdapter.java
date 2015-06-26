@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import java.io.IOException;
@@ -62,6 +64,7 @@ public class DbAdapter {
         return c;
     }
 
+
     public ArrayList<Point> getPoints(String tourName) {
         Cursor test = setQuerry("SELECT p.name,p.Data ,p.longtitude, p.latitude, p.picture FROM PointsOfInterest as p" +
                 " LEFT JOIN PointsOfInterestAndTouren as pt on p._id = pt.POI_ID" +
@@ -85,8 +88,12 @@ public class DbAdapter {
     }
 
     private Point cursorToEntryPoints(Cursor cursor) {
+        byte [] image=cursor.getBlob(4);
+        Bitmap picture;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        picture = BitmapFactory.decodeByteArray(image, 0, image.length, options);
         Point p = new Point(cursor.getString(0), cursor.getString(1),
-                cursor.getDouble(2), cursor.getDouble(3));
+                cursor.getDouble(2), cursor.getDouble(3), picture);
         return p;
     }
 
