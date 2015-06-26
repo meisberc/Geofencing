@@ -76,10 +76,12 @@ public class DbAdapter {
         if (c.moveToFirst()) {
             c.moveToFirst();
             Point p = cursorToEntryPoints(c);
+            data.add(p);
             while (c.moveToNext()) {
                 p = cursorToEntryPoints(c);
+                data.add(p);
             }
-            data.add(p);
+
         }
         c.close();
         return data;
