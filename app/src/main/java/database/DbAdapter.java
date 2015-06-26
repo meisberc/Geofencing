@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -98,7 +99,7 @@ public class DbAdapter {
     }
 
     public Tour getTour(String name) {
-        Cursor temp = setQuerry("SELECT Name FROM Touren");
+        Cursor temp = setQuerry("SELECT Name, Data FROM Touren");
         return addDataToTour(temp, name);
     }
 
@@ -108,14 +109,14 @@ public class DbAdapter {
             c.moveToFirst();
             if(c.getString(0).equals(name))
             {
-                //tour = new Tour(c.getString(0),c.getString(1));
-                tour = new Tour(c.getString(0),"");
+                tour = new Tour(c.getString(0),c.getString(1));
+                //tour = new Tour(c.getString(0),"");
             }
             while (c.moveToNext()) {
                 if(c.getString(0).equals(name))
                 {
-                   // tour = new Tour(c.getString(0),c.getString(1));
-                    tour = new Tour(c.getString(0),"");
+                    tour = new Tour(c.getString(0),c.getString(1));
+                    //tour = new Tour(c.getString(0),"");
                 }
             }
 
