@@ -1,8 +1,29 @@
 <resources>
 
     <!-- Base application theme. -->
+    <!-- Customize your theme here. -->
+    <style name="Hallo" parent="Base.Theme.AppCompat.Light">
+        <item name="android:background">#177F75</item>
+    </style>
+
+    <style name="OverText" parent="Base.Theme.AppCompat.Light">
+        <item name="android:textSize">16pt</item>
+        <item name="android:textColor">#242E35</item>
+    </style>
+
+    <style name="UnderText" parent="Base.Theme.AppCompat.Light">
+        <item name="android:background">#CBFFFA</item>
+        <item name="android:textSize">12pt</item>
+        <item name="android:textColor">#242E35</item>/>
+    </style>
+    // #
+    //
+    //
+    <!-- ein paar testfarben für schnelles copypaste 0A4958 01B6AD F6E7D2. -->
+    <!-- nicht löschen!!!! -->
     <style name="AppTheme" parent="Base.Theme.AppCompat.Light">
-        <!-- Customize your theme here. -->
+        <item name="android:textSize">12pt</item>
+        <item name="android:textColor">#242E35</item>/>
     </style>
 
 </resources>
