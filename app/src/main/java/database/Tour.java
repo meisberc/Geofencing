@@ -11,7 +11,7 @@ public class Tour {
     private int numberOfPoints;
     private ArrayList<Point> points;
 
-    public Tour(String name, String desc, int numberOfPoints, ArrayList<Point> points) {
+    public Tour(String name, String desc) {
         this.name = name;
         this.desc = desc;
         this.numberOfPoints = numberOfPoints;

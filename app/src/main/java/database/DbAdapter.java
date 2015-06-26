@@ -96,4 +96,32 @@ public class DbAdapter {
             e.printStackTrace();
         }
     }
+
+    public Tour getTour(String name) {
+        Cursor temp = setQuerry("SELECT Name FROM Touren");
+        return addDataToTour(temp, name);
+    }
+
+    private Tour addDataToTour(Cursor c, String name) {
+        Tour tour = null;
+        if (c.moveToFirst()) {
+            c.moveToFirst();
+            if(c.getString(0).equals(name))
+            {
+                //tour = new Tour(c.getString(0),c.getString(1));
+                tour = new Tour(c.getString(0),"");
+            }
+            while (c.moveToNext()) {
+                if(c.getString(0).equals(name))
+                {
+                   // tour = new Tour(c.getString(0),c.getString(1));
+                    tour = new Tour(c.getString(0),"");
+                }
+            }
+
+        }
+        c.close();
+        return tour;
+    }
+
 }

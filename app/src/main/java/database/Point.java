@@ -9,7 +9,7 @@ public class Point {
     private double latitude;
     private double longitude;
 
-    public Point(String name, String desc, double latitude, double longitude) {
+    public Point(String name, String desc, double longitude, double latitude) {
         this.name = name;
         this.desc = desc;
         this.latitude = latitude;

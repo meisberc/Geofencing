@@ -25,7 +25,7 @@ public class TourStartActivity extends AppCompatActivity {
 
         //Tourname aus Intent wieder auslesen
         name = getIntent().getExtras().getString(MainActivity.TOURNAME);
-        ((TextView) findViewById(R.id.tourName)).setText(name);
+
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("Tour: " + name);
@@ -34,8 +34,12 @@ public class TourStartActivity extends AppCompatActivity {
         /*Hier wird tour mit einem Aufruf aus der Datenbank initialisiert
         und die Werte des Objekts den Textfeldern zugeordnet
          */
+        dbAdapter.openRead();
+        tour = dbAdapter.getTour(name);
+        tour.setDesc("Tour über Römische Bauten");
+        ((TextView) findViewById(R.id.tourName)).setText(tour.getName());
+        ((TextView) findViewById(R.id.tourDesc)).setText(tour.getDesc());
 
-        //tour = dbAdapter....
     }
 
     public void startTour(View view) {
@@ -75,5 +79,11 @@ public class TourStartActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        dbAdapter.close();
     }
 }

@@ -1,5 +1,10 @@
 package lbs.de.geofencing;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.location.Location;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.WindowManager;
@@ -9,18 +14,76 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+
+import database.DbAdapter;
+import database.Point;
+import gpstracker.GPSTracker;
 
 public class MapsActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private ArrayList<Point> points;
+    private DbAdapter dbAdapter = MainActivity.getDbAdapter();
+    private String name;
+    private boolean cameraMoved;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps2);
+        setContentView(R.layout.activity_maps);
+
+        name = getIntent().getExtras().getString(MainActivity.TOURNAME);
+
+        dbAdapter.openRead();
+        points = dbAdapter.getPoints(name);
+
         setUpMapIfNeeded();
+
+        setUpListener();
+
+
+
+        GPSTracker tmpTracker = new GPSTracker(this);
+        if (!tmpTracker.canGetLocation()) {
+            showSettingsAlert();
+        } else {
+            Location location = tmpTracker.getLocation();
+            centerMap(location);
+        }
+    }
+
+    private void setUpListener() {
+
+        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            @Override
+            public void onMyLocationChange(Location location) {
+                if(!cameraMoved)
+                {
+                centerMap(location);}
+            }
+        });
+
+        mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+                cameraMoved = true;
+            }
+        });
+    }
+
+    public void centerMap(Location location) {
+        if (location != null) {
+            CameraUpdate center =
+                    CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),
+                            location.getLongitude()));
+
+            mMap.moveCamera(center);
+        }
     }
 
     @Override
@@ -77,6 +140,42 @@ public class MapsActivity extends FragmentActivity {
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(18);
         mMap.animateCamera(zoom);
 
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        for(Point p : points) {
+            mMap.addMarker(new MarkerOptions().position(new LatLng(p.getLatitude(), p.getLongitude())).title(p.getName()));
+        }
+    }
+
+    public void showSettingsAlert(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+
+        // Setting Dialog Title
+        alertDialog.setTitle(R.string.gps_settings);
+
+        // Setting Dialog Message
+        alertDialog.setMessage(R.string.gps_not_enabled);
+
+        // On pressing Settings button
+        alertDialog.setPositiveButton(R.string.action_settings, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        });
+
+        // on pressing cancel button
+        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        // Showing Alert Message
+        alertDialog.show();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        dbAdapter.close();
     }
 }
