@@ -63,7 +63,7 @@ public class DbAdapter {
     }
 
     public ArrayList<Point> getPoints(String tourName) {
-        Cursor test = setQuerry("SELECT p.name,p.Data ,p.longtitude, p.latitude FROM PointsOfInterest as p" +
+        Cursor test = setQuerry("SELECT p.name,p.Data ,p.longtitude, p.latitude, p.picture FROM PointsOfInterest as p" +
                 " LEFT JOIN PointsOfInterestAndTouren as pt on p._id = pt.POI_ID" +
                 " LEFT JOIN Touren as t on t._id = pt.Touren_ID\n" +
                 " WHERE t.Name LIKE \"" + tourName + "\";");
