@@ -11,8 +11,10 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 
-/**
- * Created by Christian Meisberger on 21.06.2015.
+/*
+* DbAdapter
+* Todo soweit alles fertig. Bereich betreten und verlassen wird von der Geofencing API von google übernommen
+* Todo lediglich die Methode für die Freie Tour muss nur noch implementiert werden. Diese ist allerdings optional.
  */
 public class DbAdapter {
 
