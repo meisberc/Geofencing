@@ -74,6 +74,14 @@ public class MapsActivity extends FragmentActivity {
                 cameraMoved = true;
             }
         });
+
+        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                cameraMoved = false;
+                return false;
+            }
+        });
     }
 
     public void centerMap(Location location) {
