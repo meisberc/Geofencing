@@ -13,7 +13,7 @@ import database.Tour;
 
 public class TourStartActivity extends AppCompatActivity {
 
-    //    private static final int REQUEST_CODE = 1;
+       private static final int REQUEST_CODE = 1;
     private String name;
     private Tour tour;
     private DbAdapter dbAdapter = MainActivity.getDbAdapter();
@@ -41,10 +41,10 @@ public class TourStartActivity extends AppCompatActivity {
     public void startTour(View view) {
         Intent i = new Intent(this, MapsActivity.class);
         i.putExtra(MainActivity.TOURNAME, name);
-        startActivity(i);
+        startActivityForResult(i,REQUEST_CODE);
     }
 
-   /* @Override
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
         if (requestCode == REQUEST_CODE) {
@@ -53,7 +53,7 @@ public class TourStartActivity extends AppCompatActivity {
                 name = data.getExtras().getString(MainActivity.TOURNAME);
             }
         }
-    }*/
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

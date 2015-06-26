@@ -2,10 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="lbs.de.geofencing" >
 
-    <uses-feature
-        android:glEsVersion="0x00020000"
-        android:required="true" />
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -43,12 +39,11 @@
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"
-            android:parentActivityName=".TourStartActivity">
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value=".TourStartActivity"/>
+            android:parentActivityName=".TourStartActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".TourStartActivity" />
         </activity>
-
         <activity
             android:name=".TourStartActivity"
             android:label="@string/title_activity_tour_start" >
@@ -56,13 +51,15 @@
         <activity
             android:name=".POIActivity"
             android:label="@string/title_activity_poi"
-            android:parentActivityName=".MapsActivity">
+            android:parentActivityName=".MapsActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MapsActivity"/>
+                android:value=".MapsActivity" />
         </activity>
-        <!--<service android:name="gpstracker.GPSTracker">
-        </service>-->
+        <!--
+        <service android:name="gpstracker.GPSTracker">
+        </service>
+        -->
     </application>
 
 </manifest>

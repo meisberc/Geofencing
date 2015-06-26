@@ -42,11 +42,15 @@ public class DbAdapter {
 
     private ArrayList<String> addDataToList(Cursor c) {
         ArrayList<String> data = new ArrayList<>();
+        //int i=1;
+        if (c.moveToFirst()) {
             c.moveToFirst();
-
-            while (!c.isAfterLast()) {
+            data.add(c.getString(0));
+            while (c.moveToNext()) {
                 data.add(c.getString(0));
             }
+
+        }
         c.close();
         return data;
     }
@@ -67,23 +71,22 @@ public class DbAdapter {
 
     private ArrayList<Point> addPointsToList(Cursor c) {
         ArrayList<Point> data = new ArrayList<>();
-        c.moveToFirst();
-
-        while (!c.isAfterLast()) {
+        if (c.moveToFirst()) {
+            c.moveToFirst();
             Point p = cursorToEntryPoints(c);
+            while (c.moveToNext()) {
+                p = cursorToEntryPoints(c);
+            }
             data.add(p);
         }
         c.close();
         return data;
     }
 
-    private Point cursorToEntryPoints(Cursor cursor)
-    {
-       /* Point p = new Point(cursor....);
+    private Point cursorToEntryPoints(Cursor cursor) {
+        Point p = new Point(cursor.getString(0), cursor.getString(1),
+                cursor.getDouble(2), cursor.getDouble(3));
         return p;
-
-        */
-        return null;
     }
 
     public void copyDb() {

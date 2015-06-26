@@ -1,12 +1,7 @@
 package lbs.de.geofencing;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.location.Location;
-import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
+import android.os.Bundle;
 import android.view.WindowManager;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -17,76 +12,21 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-
-import database.DbAdapter;
-import database.Point;
-import gpstracker.GPSTracker;
-
 public class MapsActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private GPSTracker tracker;
-    private DbAdapter dbAdapter = MainActivity.getDbAdapter();
-    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.activity_maps2);
         setUpMapIfNeeded();
-        name = getIntent().getExtras().getString(MainActivity.TOURNAME);
-
-        setupActivity();
-        //dbAdapter.openRead();
-        //ArrayList<Point> points = dbAdapter.getPoints(name);
-
-        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
-            @Override
-            public void onMyLocationChange(Location location) {
-                centerMap(location);
-            }
-        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
-    }
-
-    public void setupActivity() {
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        GoogleMapOptions options = new GoogleMapOptions();
-        options.mapType(GoogleMap.MAP_TYPE_NORMAL)
-                .compassEnabled(false)
-                .rotateGesturesEnabled(true)
-                .tiltGesturesEnabled(false)
-                .mapToolbarEnabled(true);
-        mMap.setMyLocationEnabled(true);
-
-        GPSTracker tmpTracker = new GPSTracker(this);
-        if (!tmpTracker.canGetLocation()) {
-            showSettingsAlert();
-        } else {
-            Location location = tmpTracker.getLocation();
-            centerMap(location);
-        }
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(18);
-        mMap.animateCamera(zoom);
-        Intent intent= new Intent(this, GPSTracker.class);
-       /* bindService(intent, mConnection,
-                Context.BIND_AUTO_CREATE);*/
-    }
-
-    public void centerMap(Location location) {
-        if (location != null) {
-            CameraUpdate center =
-                    CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),
-                            location.getLongitude()));
-
-            mMap.moveCamera(center);
-        }
     }
 
     /**
@@ -124,49 +64,19 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        GoogleMapOptions options = new GoogleMapOptions();
+        options.mapType(GoogleMap.MAP_TYPE_NORMAL)
+                .compassEnabled(true)
+                .rotateGesturesEnabled(true)
+                .tiltGesturesEnabled(false)
+                .mapType(GoogleMap.MAP_TYPE_NORMAL)
+                .mapToolbarEnabled(true);
+        mMap.setMyLocationEnabled(true);
+
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(18);
+        mMap.animateCamera(zoom);
+
         mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
-    }
-
-   /* private ServiceConnection mConnection = new ServiceConnection() {
-
-        public void onServiceConnected(ComponentName className,
-                                       IBinder binder) {
-            gpstracker.GPSTracker.MyBinder b = (gpstracker.GPSTracker.MyBinder) binder;
-            tracker = b.getService();
-            Toast.makeText(MapsActivity.this, "Connected", Toast.LENGTH_SHORT)
-                    .show();
-        }
-
-        public void onServiceDisconnected(ComponentName className) {
-            tracker = null;
-        }
-    };*/
-
-    public void showSettingsAlert(){
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-
-        // Setting Dialog Title
-        alertDialog.setTitle(R.string.gps_settings);
-
-        // Setting Dialog Message
-        alertDialog.setMessage(R.string.gps_not_enabled);
-
-        // On pressing Settings button
-        alertDialog.setPositiveButton(R.string.action_settings, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog,int which) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(intent);
-            }
-        });
-
-        // on pressing cancel button
-        alertDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        // Showing Alert Message
-        alertDialog.show();
     }
 }

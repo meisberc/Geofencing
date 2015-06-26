@@ -4,15 +4,16 @@ package database;
  * Created by Christian Meisberger on 25.06.2015.
  */
 public class Point {
-    private int id;
     private String name;
     private String desc;
     private double latitude;
     private double longitude;
 
-    public Point(String name, String desc) {
+    public Point(String name, String desc, double latitude, double longitude) {
         this.name = name;
         this.desc = desc;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public String getName() {
@@ -29,5 +30,21 @@ public class Point {
 
     public void setDesc(String desc) {
         this.desc = desc;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 }
