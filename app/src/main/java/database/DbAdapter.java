@@ -59,9 +59,7 @@ public class DbAdapter {
     }
 
     private Cursor setQuerry(String querry) {
-        Cursor c = database.rawQuery(querry, null);
-
-        return c;
+        return database.rawQuery(querry, null);
     }
 
 
@@ -92,9 +90,8 @@ public class DbAdapter {
         Bitmap picture;
         BitmapFactory.Options options = new BitmapFactory.Options();
         picture = BitmapFactory.decodeByteArray(image, 0, image.length, options);
-        Point p = new Point(cursor.getString(0), cursor.getString(1),
+        return new Point(cursor.getString(0), cursor.getString(1),
                 cursor.getDouble(2), cursor.getDouble(3), picture);
-        return p;
     }
 
     public void copyDb() {
