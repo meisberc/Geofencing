@@ -223,7 +223,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 .rotateGesturesEnabled(true)
                 .tiltGesturesEnabled(false)
                 .mapType(GoogleMap.MAP_TYPE_NORMAL)
-                .mapToolbarEnabled(true);
+                .mapToolbarEnabled(false);
         mMap.setMyLocationEnabled(true);
 
         for (Point p : points) {
@@ -421,12 +421,12 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
         @Override
         protected void onPostExecute(List<List<HashMap<String, String>>> routes) {
-//            ArrayList<LatLng> points = null;
+            ArrayList<LatLng> points;
             PolylineOptions polyLineOptions = null;
 
             // traversing through routes
             for (int i = 0; i < routes.size(); i++) {
-                ArrayList<LatLng> points = new ArrayList<>();
+                points = new ArrayList<>();
                 polyLineOptions = new PolylineOptions();
                 List<HashMap<String, String>> path = routes.get(i);
 
@@ -441,7 +441,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 }
 
                 polyLineOptions.addAll(points);
-                polyLineOptions.width(2);
+                polyLineOptions.width(8);
                 polyLineOptions.color(Color.BLUE);
             }
 
