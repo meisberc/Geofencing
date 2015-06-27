@@ -6,7 +6,6 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ import java.util.ArrayList;
 * Todo soweit alles fertig. Bereich betreten und verlassen wird von der Geofencing API von google übernommen
 * Todo lediglich die Methode für die Freie Tour muss nur noch implementiert werden. Diese ist allerdings optional.
  */
+
 public class DbAdapter {
 
     private SQLiteDatabase database;

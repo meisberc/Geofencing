@@ -59,10 +59,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private ArrayList<Point> points;
     private DbAdapter dbAdapter = MainActivity.getDbAdapter();
-    private String name;
     private boolean cameraMoved;
-    private Point oldPoint;
-    private Point newPoint;
     private Location myLocation;
 
     @Override
@@ -71,11 +68,11 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         setContentView(R.layout.activity_maps);
         buildGoogleApiClient();
 
-        name = getIntent().getExtras().getString(MainActivity.TOURNAME);
+        String name = getIntent().getExtras().getString(MainActivity.TOURNAME);
 
 
         // Empty list for storing geofences.
-        mGeofenceList = new ArrayList<Geofence>();
+        mGeofenceList = new ArrayList<>();
 
         // Initially set the PendingIntent used in addGeofences() and removeGeofences() to null.
         mGeofencePendingIntent = null;
@@ -102,13 +99,10 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             mMap.animateCamera(zoom);
         }
 
-        newPoint = points.get(0);
+        Point newPoint = points.get(0);
         LatLng newLatLng = new LatLng(newPoint.getLatitude(), newPoint.getLongitude());
         LatLng oldLatLng = new LatLng(points.get(1).getLatitude(), points.get(1).getLongitude());
-        if (myLocation != null) {
-            // LatLng oldLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
 
-        }
         String url = getDirectionsUrl(oldLatLng, newLatLng);
         ReadTask downloadTask = new ReadTask();
         downloadTask.execute(url);
@@ -176,9 +170,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         String output = "json";
 
         // Building the url to the web service
-        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
-
-        return url;
+        return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
     }
 
     @Override
@@ -429,12 +421,12 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
         @Override
         protected void onPostExecute(List<List<HashMap<String, String>>> routes) {
-            ArrayList<LatLng> points = null;
+//            ArrayList<LatLng> points = null;
             PolylineOptions polyLineOptions = null;
 
             // traversing through routes
             for (int i = 0; i < routes.size(); i++) {
-                points = new ArrayList<LatLng>();
+                ArrayList<LatLng> points = new ArrayList<>();
                 polyLineOptions = new PolylineOptions();
                 List<HashMap<String, String>> path = routes.get(i);
 

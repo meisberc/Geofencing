@@ -21,15 +21,15 @@ public class HttpConnection {
 			iStream = urlConnection.getInputStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					iStream));
-			StringBuffer sb = new StringBuffer();
-			String line = "";
+			StringBuilder sb = new StringBuilder();
+			String line;
 			while ((line = br.readLine()) != null) {
 				sb.append(line);
 			}
 			data = sb.toString();
 			br.close();
 		} catch (Exception e) {
-			Log.d("Exception while reading url", e.toString());
+			Log.d("Exc. while reading url", e.toString());
 		} finally {
 			iStream.close();
 			urlConnection.disconnect();

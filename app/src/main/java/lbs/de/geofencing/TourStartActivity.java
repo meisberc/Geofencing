@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import database.DbAdapter;
@@ -14,9 +13,8 @@ import database.Tour;
 
 public class TourStartActivity extends AppCompatActivity {
 
-       private static final int REQUEST_CODE = 1;
+    private static final int REQUEST_CODE = 1;
     private String name;
-    private Tour tour;
     private DbAdapter dbAdapter = MainActivity.getDbAdapter();
 
     @Override
@@ -36,7 +34,7 @@ public class TourStartActivity extends AppCompatActivity {
         und die Werte des Objekts den Textfeldern zugeordnet
          */
         dbAdapter.openRead();
-        tour = dbAdapter.getTour(name);
+        Tour tour = dbAdapter.getTour(name);
 //        tour.setDesc("Tour über Römische Bauten");
         ((TextView) findViewById(R.id.tourName)).setText(tour.getName());
         ((TextView) findViewById(R.id.tourDesc)).setText(tour.getDesc());
@@ -46,7 +44,7 @@ public class TourStartActivity extends AppCompatActivity {
     public void startTour(View view) {
         Intent i = new Intent(this, MapsActivity.class);
         i.putExtra(MainActivity.TOURNAME, name);
-        startActivityForResult(i,REQUEST_CODE);
+        startActivityForResult(i, REQUEST_CODE);
     }
 
     @Override
