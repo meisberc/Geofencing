@@ -51,8 +51,12 @@ public class Point {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
-    public Bitmap getBitmap(){ return bitmap;}
-    public void setBitmap(Bitmap bitmap){
+
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
+
+    public void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
     }
 }

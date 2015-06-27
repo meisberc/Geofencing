@@ -83,7 +83,7 @@ public class DbAdapter {
                 p = cursorToEntryPoints(c);
                 data.add(p);
             }
-
+            data.add(p);
         }
         c.close();
         return data;

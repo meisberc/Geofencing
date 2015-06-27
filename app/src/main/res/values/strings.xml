@@ -9,4 +9,12 @@
     <string name="gps_settings">GPS is settings</string>
     <string name="gps_not_enabled">GPS is not enabled. Do you want to go to settings menu?</string>
     <string name="cancel">Cancel</string>
+    <string name="geofence_transition_entered">Geofence Entered</string>
+    <string name="geofence_transition_exited">Geofence Exited</string>
+    <string name="unknown_geofence_transition">Unknown Geofence</string>
+    <string name="geofence_transition_invalid_type">Geofence Invalid</string>
+    <string name="geofence_not_available">Geofence not available</string>
+    <string name="geofence_too_many_geofences">Too many geofences</string>
+    <string name="geofence_too_many_pending_intents">Too many Intents</string>
+    <string name="unknown_geofence_error">Unknown geofence error</string>
 </resources>

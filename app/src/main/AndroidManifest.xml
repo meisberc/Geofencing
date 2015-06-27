@@ -56,10 +56,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MapsActivity" />
         </activity>
-        <!--
-        <service android:name="gpstracker.GPSTracker">
-        </service>
-        -->
+        <service android:name="geofence.GeofenceTransitionsIntentService" />
     </application>
 
 </manifest>
