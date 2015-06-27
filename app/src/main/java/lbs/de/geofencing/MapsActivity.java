@@ -16,7 +16,6 @@ import android.view.WindowManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -25,6 +24,7 @@ import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -38,7 +38,6 @@ import java.util.Map;
 import database.DbAdapter;
 import database.Point;
 import geofence.Constants;
-import geofence.GeofenceTransitionsIntentService;
 import gpstracker.GPSTracker;
 import path.HttpConnection;
 import path.PathJSONParser;
@@ -53,8 +52,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     //     The list of geofences used in this sample
     protected ArrayList<Geofence> mGeofenceList;
 
-    //     Used when requesting to add or remove geofences.
-    private PendingIntent mGeofencePendingIntent;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private ArrayList<Point> points;
@@ -66,6 +63,15 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        /*
+        *Prüfung, ob Google Play Services installiert sind, muss noch implementiert werden,
+        * um direkte Crashes der App zu vermeiden.
+        * Wenn Play Services nicht installiert sind, dann soll die Avtivity sofort geschlossen
+        * werden und ein passender Toast angezeigt werden.
+        */
+
+
         buildGoogleApiClient();
 
         String name = getIntent().getExtras().getString(MainActivity.TOURNAME);
@@ -73,9 +79,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
         // Empty list for storing geofences.
         mGeofenceList = new ArrayList<>();
-
-        // Initially set the PendingIntent used in addGeofences() and removeGeofences() to null.
-        mGeofencePendingIntent = null;
 
         dbAdapter.openRead();
         points = dbAdapter.getPoints(name);
@@ -99,14 +102,19 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             mMap.animateCamera(zoom);
         }
 
-        Point newPoint = points.get(0);
+        drawLineBetweenNextPoints();
+    }
+
+    private void drawLineBetweenNextPoints() {
+        Point oldPoint = points.get(0);
+        Point newPoint = points.get(1);
+
         LatLng newLatLng = new LatLng(newPoint.getLatitude(), newPoint.getLongitude());
-        LatLng oldLatLng = new LatLng(points.get(1).getLatitude(), points.get(1).getLongitude());
+        LatLng oldLatLng = new LatLng(oldPoint.getLatitude(),oldPoint.getLongitude());
 
         String url = getDirectionsUrl(oldLatLng, newLatLng);
         ReadTask downloadTask = new ReadTask();
         downloadTask.execute(url);
-
     }
 
     private void setUpListener() {
@@ -135,6 +143,13 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng
                         (mMap.getMyLocation().getLatitude(), mMap.getMyLocation().getLongitude()), 18));
                 return false;
+            }
+        });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                return true;
             }
         });
     }
@@ -227,7 +242,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         mMap.setMyLocationEnabled(true);
 
         for (Point p : points) {
-            mMap.addMarker(new MarkerOptions().position(new LatLng(p.getLatitude(), p.getLongitude())).title(p.getName()));
+            mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(p.getLatitude(), p.getLongitude())).title(p.getName()));
         }
     }
 
@@ -302,43 +318,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         Log.i(TAG, "Connection suspended");
 
         // onConnected() will be called again automatically when the service reconnects
-    }
-
-    /**
-     * Builds and returns a GeofencingRequest. Specifies the list of geofences to be monitored.
-     * Also specifies how the geofence notifications are initially triggered.
-     */
-    private GeofencingRequest getGeofencingRequest() {
-        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-
-        // The INITIAL_TRIGGER_ENTER flag indicates that geofencing service should trigger a
-        // GEOFENCE_TRANSITION_ENTER notification when the geofence is added and if the device
-        // is already inside that geofence.
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
-
-        // Add the geofences to be monitored by geofencing service.
-        builder.addGeofences(mGeofenceList);
-
-        // Return a GeofencingRequest.
-        return builder.build();
-    }
-
-    /**
-     * Gets a PendingIntent to send with the request to add or remove Geofences. Location Services
-     * issues the Intent inside this PendingIntent whenever a geofence transition occurs for the
-     * current list of geofences.
-     *
-     * @return A PendingIntent for the IntentService that handles geofence transitions.
-     */
-    private PendingIntent getGeofencePendingIntent() {
-        // Reuse the PendingIntent if we already have it.
-        if (mGeofencePendingIntent != null) {
-            return mGeofencePendingIntent;
-        }
-        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
-        // addGeofences() and removeGeofences().
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     /**
