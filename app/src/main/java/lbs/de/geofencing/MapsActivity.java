@@ -12,10 +12,17 @@ import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -38,19 +45,30 @@ import java.util.Map;
 import database.DbAdapter;
 import database.Point;
 import geofence.Constants;
+import geofence.GeofenceErrorMessages;
+import geofence.GeofenceTransitionsIntentService;
 import gpstracker.GPSTracker;
 import path.HttpConnection;
 import path.PathJSONParser;
 
-public class MapsActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MapsActivity extends FragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<Status> {
     protected static final String TAG = "monitoring-geofences";
-
 
     //     Provides the entry point to Google Play services.
     protected GoogleApiClient mGoogleApiClient;
 
     //     The list of geofences used in this sample
     protected ArrayList<Geofence> mGeofenceList;
+
+    /**
+     * Used when requesting to add or remove geofences.
+     */
+    private PendingIntent mGeofencePendingIntent;
+
+    /**
+     * Used to keep track of whether geofences were added.
+     */
+    private boolean mGeofencesAdded;
 
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -64,12 +82,14 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        /*
-        *Prüfung, ob Google Play Services installiert sind, muss noch implementiert werden,
-        * um direkte Crashes der App zu vermeiden.
-        * Wenn Play Services nicht installiert sind, dann soll die Avtivity sofort geschlossen
-        * werden und ein passender Toast angezeigt werden.
-        */
+        /**
+         *Prüfung, ob Google Play Services installiert sind, muss noch implementiert werden,
+         * um direkte Crashes der App zu vermeiden.
+         * Wenn Play Services nicht installiert sind, wird ein Dialog geöffnet und die App beendet
+         */
+        if (!isGooglePlayServiceAvailable()) {
+            showPlayServiceAlert();
+        }
 
 
         buildGoogleApiClient();
@@ -100,17 +120,37 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             centerMap(location);
             CameraUpdate zoom = CameraUpdateFactory.zoomTo(18);
             mMap.animateCamera(zoom);
+            drawLineBetweenNextPoints();
         }
 
-        drawLineBetweenNextPoints();
+    }
+
+    private void showPlayServiceAlert() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+
+        // Setting Dialog Title
+        alertDialog.setTitle(R.string.googlePlay);
+
+        // Setting Dialog Message
+        alertDialog.setMessage(R.string.googlePlayError);
+
+        // on pressing cancel button
+        alertDialog.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                System.exit(0);
+            }
+        });
+
+        // Showing Alert Message
+        alertDialog.show();
     }
 
     private void drawLineBetweenNextPoints() {
-        Point oldPoint = points.get(0);
-        Point newPoint = points.get(1);
+        Point oldPoint = new Point("My Location", myLocation.getLatitude(), myLocation.getLongitude());
+        Point newPoint = points.get(0);
 
         LatLng newLatLng = new LatLng(newPoint.getLatitude(), newPoint.getLongitude());
-        LatLng oldLatLng = new LatLng(oldPoint.getLatitude(),oldPoint.getLongitude());
+        LatLng oldLatLng = new LatLng(oldPoint.getLatitude(), oldPoint.getLongitude());
 
         String url = getDirectionsUrl(oldLatLng, newLatLng);
         ReadTask downloadTask = new ReadTask();
@@ -125,6 +165,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 if (!cameraMoved) {
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng
                             (location.getLatitude(), location.getLongitude()), 18));
+                    myLocation = location;
+                    drawLineBetweenNextPoints();
                 }
             }
         });
@@ -188,21 +230,20 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setUpMapIfNeeded();
+    private boolean isGooglePlayServiceAvailable() {
+        int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        return errorCode == ConnectionResult.SUCCESS;
     }
 
     /**
      * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
      * installed) and the map has not already been instantiated.. This will ensure that we only ever
      * call {@link #setUpMap()} once when {@link #mMap} is not null.
-     * <p>
+     * <p/>
      * If it isn't installed {@link SupportMapFragment} (and
      * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
      * install/update the Google Play services APK on their device.
-     * <p>
+     * <p/>
      * A user can return to this FragmentActivity after following the prompt and correctly
      * installing/updating/enabling the Google Play services. Since the FragmentActivity may not
      * have been completely destroyed during this process (it is likely that it would only be
@@ -227,7 +268,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     /**
      * This is where we can add markers or lines, add listeners or move the camera. In this case, we
      * just add a marker near Africa.
-     * <p>
+     * <p/>
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
@@ -275,49 +316,12 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         alertDialog.show();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        dbAdapter.openRead();
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        dbAdapter.close();
-        mGoogleApiClient.disconnect();
-    }
-
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
-    }
-
-    /**
-     * Runs when a GoogleApiClient object successfully connects.
-     */
-    @Override
-    public void onConnected(Bundle connectionHint) {
-        Log.i(TAG, "Connected to GoogleApiClient");
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
-        // onConnectionFailed.
-        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
-    }
-
-    @Override
-    public void onConnectionSuspended(int cause) {
-        // The connection to Google Play services was lost for some reason.
-        Log.i(TAG, "Connection suspended");
-
-        // onConnected() will be called again automatically when the service reconnects
     }
 
     /**
@@ -356,7 +360,61 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                             // Create the geofence.
                     .build());
         }
+
     }
+
+    /**
+     * Runs when a GoogleApiClient object successfully connects.
+     */
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        Log.i(TAG, "Connected to GoogleApiClient");
+        LocationServices.GeofencingApi.addGeofences(
+                mGoogleApiClient,
+                getGeofencingRequest(),
+                getGeofencePendingIntent()
+        ).setResultCallback(this);
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
+        // onConnectionFailed.
+        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
+    }
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+        // The connection to Google Play services was lost for some reason.
+        Log.i(TAG, "Connection suspended");
+
+        // onConnected() will be called again automatically when the service reconnects
+    }
+
+
+    public void onResult(Status status) {
+        if (status.isSuccess()) {
+            // Update state and save in shared preferences.
+            mGeofencesAdded = !mGeofencesAdded;
+
+            // Update the UI. Adding geofences enables the Remove Geofences button, and removing
+            // geofences enables the Add Geofences button.
+
+            Toast.makeText(
+                    this,
+                    mGeofencesAdded ? "added" :
+                            "removed",
+                    Toast.LENGTH_SHORT
+            ).show();
+        } else {
+            // Get the status code for the error and log it using a user-friendly message.
+            String errorMessage = GeofenceErrorMessages.getErrorString(this,
+                    status.getStatusCode());
+            Log.e(TAG, errorMessage);
+        }
+    }
+
 
     private class ReadTask extends AsyncTask<String, Void, String> {
         @Override
@@ -426,5 +484,44 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
             mMap.addPolyline(polyLineOptions);
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        dbAdapter.openRead();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        dbAdapter.close();
+        mGoogleApiClient.disconnect();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setUpMapIfNeeded();
+    }
+
+    private GeofencingRequest getGeofencingRequest() {
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.addGeofences(mGeofenceList);
+        return builder.build();
+    }
+
+    private PendingIntent getGeofencePendingIntent() {
+        // Reuse the PendingIntent if we already have it.
+        if (mGeofencePendingIntent != null) {
+            return mGeofencePendingIntent;
+        }
+        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
+        // calling addGeofences() and removeGeofences().
+        return PendingIntent.getService(this, 0, intent, PendingIntent.
+                FLAG_UPDATE_CURRENT);
     }
 }

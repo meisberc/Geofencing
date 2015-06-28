@@ -1,5 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Theme.Base"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -54,6 +55,8 @@
         android:text="Starte Tour"
         android:id="@+id/startTour"
         android:layout_gravity="center_horizontal"
-        android:onClick="startTour" />
+        android:onClick="startTour"
+        style="@style/Theme.Base"
+        android:textStyle="normal" />
 
 </LinearLayout>

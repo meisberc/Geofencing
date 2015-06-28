@@ -17,6 +17,12 @@ public class Point {
         this.bitmap = bitmap;
     }
 
+    public Point(String name, double latitude, double longitude) {
+        this.name = name;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
     public String getName() {
         return name;
     }
