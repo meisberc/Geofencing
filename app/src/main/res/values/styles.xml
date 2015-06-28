@@ -1,5 +1,5 @@
 <resources>
-    <style name="Theme.Base" parent="Theme.AppCompat.Light">
+    <style name="AppBase" parent="Theme.AppCompat.Light">
     </style>
     <!-- Base application theme. -->
     <!-- Customize your theme here. -->
