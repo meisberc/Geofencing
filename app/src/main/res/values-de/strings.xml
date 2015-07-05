@@ -6,4 +6,17 @@
     <string name="gps_settings">GPS Einstellung</string>
     <string name="hello_world">Hallo Welt</string>
     <string name="cancel">Abbrechen</string>
+    <string name="geofence_not_available">Geofence nicht verfügbar</string>
+    <string name="geofence_too_many_geofences">Zu viele Geofences</string>
+    <string name="geofence_too_many_pending_intents">Zu viele Intents</string>
+    <string name="geofence_transition_entered">Geofence betreten</string>
+    <string name="geofence_transition_exited">Geofence verlassen</string>
+    <string name="geofence_transition_invalid_type">Geofence unzulässig</string>
+    <string name="googlePlay">Google Play Service Fehler</string>
+    <string name="googlePlayError">Google Play Service ist nicht verfügbar! Prüfen Sie, ob die Google Play Services korrekt installiert sind.</string>
+    <string name="unknown_geofence_error">Unbekannter Geofence</string>
+    <string name="unknown_geofence_transition">Unbekannter Geofence</string>
+    <string name="exit">Beenden</string>
+    <string name="exitError">Das Beenden der Ansicht beendet das Anzeigen von Benachrichtigungen. Möchten Sie wirklich beenden?</string>
+    <string name="exiting">Beenden?</string>
 </resources>

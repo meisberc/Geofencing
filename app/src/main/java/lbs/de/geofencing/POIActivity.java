@@ -1,30 +1,61 @@
 package lbs.de.geofencing;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import database.DbAdapter;
+import geofence.GeofenceTransitionsIntentService;
 
 public class POIActivity extends AppCompatActivity {
 
     private String name;
     private ActionBar actionBar;
+    private String tourname;
+
+    private final BroadcastReceiver abcd = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(GeofenceTransitionsIntentService.STOPPOI))
+            {
+                finish();
+            }
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_poi);
 
+        Log.i(getLocalClassName(), "onCreate()");
+
         Bundle b = getIntent().getExtras();
-        name = b.getString(MainActivity.TOURNAME);
+        name = b.getString(MapsActivity.POINT);
+        tourname = b.getString(MainActivity.TOURNAME);
 
         actionBar = getSupportActionBar();
         setupActivity();
+
+        registerReceiver(abcd, new IntentFilter("xyz"));
     }
 
     public void setupActivity() {
         actionBar.setTitle(name);
+        actionBar.setDefaultDisplayHomeAsUpEnabled(false);
+        actionBar.setHomeButtonEnabled(false);
+        DbAdapter dbAdapter = MainActivity.getDbAdapter();
+        dbAdapter.openRead();
+        ((TextView) findViewById(R.id.textViewPOI)).setText(tourname);
     }
 
 
@@ -46,7 +77,34 @@ public class POIActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
+        if (id == R.id.home)
+        {
+            exitActivity();
+        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        //moveTaskToBack(true);
+//        POIActivity.this.finish();
+//        NavUtils.navigateUpFromSameTask(this);
+        exitActivity();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(abcd);
+    }
+
+    private void exitActivity()
+    {
+        Log.i(getLocalClassName(), "ExitActivity()");
+        Intent i = getIntent();
+        i.putExtra(MapsActivity.POINT, name);
+        setResult(RESULT_OK, i);
+        finish();
     }
 }

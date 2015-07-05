@@ -2,8 +2,11 @@ package lbs.de.geofencing;
 
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -53,17 +56,29 @@ import path.PathJSONParser;
 
 public class MapsActivity extends FragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<Status> {
     protected static final String TAG = "monitoring-geofences";
+    public static final String POINT = "triggering-point";
+
+    private String tourName;
+
+    private final BroadcastReceiver abcd = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(GeofenceTransitionsIntentService.STARTPOI)) {
+                String point = intent.getExtras().getString(MapsActivity.POINT);
+                Intent i = new Intent(getApplicationContext(), POIActivity.class);
+                i.putExtra(POINT, point);
+                i.putExtra(MainActivity.TOURNAME, tourName);
+                startActivityForResult(i, 1);
+                Log.i(TAG, "onReceive()");
+            }
+        }
+    };
 
     //     Provides the entry point to Google Play services.
     protected GoogleApiClient mGoogleApiClient;
 
     //     The list of geofences used in this sample
     protected ArrayList<Geofence> mGeofenceList;
-
-    /**
-     * Used when requesting to add or remove geofences.
-     */
-    private PendingIntent mGeofencePendingIntent;
 
     /**
      * Used to keep track of whether geofences were added.
@@ -76,11 +91,15 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     private DbAdapter dbAdapter = MainActivity.getDbAdapter();
     private boolean cameraMoved;
     private Location myLocation;
+    private int aktPointNr = 0;
+    private Point newPoint;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        Log.i(TAG, "on Create()");
 
         /**
          *Prüfung, ob Google Play Services installiert sind, muss noch implementiert werden,
@@ -91,27 +110,10 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
             showPlayServiceAlert();
         }
 
-
-        buildGoogleApiClient();
-
-        String name = getIntent().getExtras().getString(MainActivity.TOURNAME);
-
-
-        // Empty list for storing geofences.
-        mGeofenceList = new ArrayList<>();
-
-        dbAdapter.openRead();
-        points = dbAdapter.getPoints(name);
-
         setUpMapIfNeeded();
 
-
-        setUpListener();
-
-        // Get the geofences used.
-        populateGeofenceList();
-
         GPSTracker tmpTracker = new GPSTracker(this);
+        tmpTracker.getLocation();
         if (!tmpTracker.canGetLocation()) {
             showSettingsAlert();
         } else {
@@ -120,9 +122,41 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
             centerMap(location);
             CameraUpdate zoom = CameraUpdateFactory.zoomTo(18);
             mMap.animateCamera(zoom);
-            drawLineBetweenNextPoints();
         }
 
+        if (getIntent().getExtras() != null) {
+            tourName = getIntent().getExtras().getString(MainActivity.TOURNAME);
+            dbAdapter.openRead();
+            points = dbAdapter.getPoints(tourName);
+            setup();
+
+        }
+        registerBroadcastReceiver();
+    }
+
+    private void setup() {
+        // Empty list for storing geofences.
+        mGeofenceList = new ArrayList<>();
+
+        buildGoogleApiClient();
+
+        setUpListener();
+        if (points != null) {
+//            addMarkers();
+//            addNextMarker();
+            // Get the geofences used.
+            populateGeofenceList();
+            drawLineBetweenNextPoints();
+            addNextMarker();
+//            drawNewLine();
+        }
+    }
+
+    private void drawNewLine() {
+        mMap.clear();
+//        addMarkers();
+        addNextMarker();
+        drawLineBetweenNextPoints();
     }
 
     private void showPlayServiceAlert() {
@@ -146,9 +180,14 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     }
 
     private void drawLineBetweenNextPoints() {
-        Point oldPoint = new Point("My Location", myLocation.getLatitude(), myLocation.getLongitude());
-        Point newPoint = points.get(0);
-
+        Point oldPoint;
+        if (aktPointNr == 0) {
+            oldPoint = new Point("My Location", myLocation.getLatitude(), myLocation.getLongitude());
+            newPoint = points.get(aktPointNr);
+        } else {
+            oldPoint = newPoint;
+            newPoint = points.get(aktPointNr);
+        }
         LatLng newLatLng = new LatLng(newPoint.getLatitude(), newPoint.getLongitude());
         LatLng oldLatLng = new LatLng(oldPoint.getLatitude(), oldPoint.getLongitude());
 
@@ -166,7 +205,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng
                             (location.getLatitude(), location.getLongitude()), 18));
                     myLocation = location;
-                    drawLineBetweenNextPoints();
+
                 }
             }
         });
@@ -181,16 +220,21 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
-                cameraMoved = false;
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng
-                        (mMap.getMyLocation().getLatitude(), mMap.getMyLocation().getLongitude()), 18));
+                if (mMap.getMyLocation() != null) {
+                    cameraMoved = false;
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng
+                            (mMap.getMyLocation().getLatitude(), mMap.getMyLocation().getLongitude()), 18));
+
+                }
                 return false;
             }
         });
 
+
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+                marker.showInfoWindow();
                 return true;
             }
         });
@@ -234,6 +278,20 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         return errorCode == ConnectionResult.SUCCESS;
     }
+
+    public void addMarkers() {
+        for (Point p : points) {
+            mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(p.getLatitude(), p.getLongitude())).title(p.getName()));
+        }
+    }
+
+    public void addNextMarker() {
+        Point p = points.get(aktPointNr);
+        mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(p.getLatitude(), p.getLongitude())).title(p.getName()));
+    }
+
 
     /**
      * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
@@ -282,10 +340,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                 .mapToolbarEnabled(false);
         mMap.setMyLocationEnabled(true);
 
-        for (Point p : points) {
-            mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(p.getLatitude(), p.getLongitude())).title(p.getName()));
-        }
+
     }
 
     public void showSettingsAlert() {
@@ -330,7 +385,8 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
      */
     public void populateGeofenceList() {
         HashMap<String, LatLng> geo = new HashMap<>();
-        for (Point p : points) {
+        for (int i = aktPointNr; i < points.size(); i++) {
+            Point p = points.get(i);
             geo.put(p.getName(), new LatLng(p.getLatitude(), p.getLongitude()));
         }
 
@@ -374,7 +430,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                 getGeofencingRequest(),
                 getGeofencePendingIntent()
         ).setResultCallback(this);
-
     }
 
     @Override
@@ -483,27 +538,41 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
             }
 
             mMap.addPolyline(polyLineOptions);
+
         }
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        dbAdapter.openRead();
-        mGoogleApiClient.connect();
+        Log.i(TAG, "onStart()");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        Log.i(TAG, "onStop()");
         dbAdapter.close();
-        mGoogleApiClient.disconnect();
+        if (mGoogleApiClient != null) {
+            if (mGoogleApiClient.isConnected()) {
+                mGoogleApiClient.disconnect();
+            }
+        }
+        unregisterReceiver(abcd);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        Log.i(TAG, "onResume()");
+        dbAdapter = MainActivity.getDbAdapter();
+        dbAdapter.openRead();
         setUpMapIfNeeded();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
+        registerBroadcastReceiver();
     }
 
     private GeofencingRequest getGeofencingRequest() {
@@ -514,14 +583,91 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     }
 
     private PendingIntent getGeofencePendingIntent() {
-        // Reuse the PendingIntent if we already have it.
-        if (mGeofencePendingIntent != null) {
-            return mGeofencePendingIntent;
-        }
         Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+        intent.putExtra(MainActivity.TOURNAME, tourName);
         // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
         // calling addGeofences() and removeGeofences().
         return PendingIntent.getService(this, 0, intent, PendingIntent.
                 FLAG_UPDATE_CURRENT);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    Intent intent) {
+        Log.i(TAG, "onActivityResult()");
+        if (resultCode == RESULT_OK && requestCode == 1) {
+            if (mGoogleApiClient != null) {
+                mGoogleApiClient.connect();
+            } else {
+                buildGoogleApiClient();
+            }
+//            String name = intent.getExtras().getString(MapsActivity.POINT);
+            tourName = intent.getExtras().getString(MainActivity.TOURNAME);
+            dbAdapter.openWrite();
+            points = dbAdapter.getPoints(tourName);
+            addMarkers();
+            aktPointNr++;
+            populateGeofenceList();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        Log.i(TAG, "onSaveInstanceState()");
+        state.putString(MainActivity.TOURNAME, tourName);
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle state) {
+        super.onRestoreInstanceState(state);
+        Log.i(TAG, "onRestoreInstanceState()");
+        tourName = state.getString(MainActivity.TOURNAME);
+        dbAdapter.openWrite();
+        points = dbAdapter.getPoints(tourName);
+
+//        addMarkers();
+        addNextMarker();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mGoogleApiClient.connect();
+        LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient, getGeofencePendingIntent());
+        mGoogleApiClient.disconnect();
+    }
+
+    @Override
+    public void onBackPressed() {
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+
+        // Setting Dialog Title
+        alertDialog.setTitle(R.string.exiting);
+
+        // Setting Dialog Message
+        alertDialog.setMessage(R.string.exitError);
+
+        // on pressing cancel button
+        alertDialog.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                MapsActivity.this.finish();
+            }
+        });
+
+        alertDialog.setPositiveButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        // Showing Alert Message
+        alertDialog.show();
+    }
+
+    public void registerBroadcastReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(GeofenceTransitionsIntentService.STARTPOI);
+        registerReceiver(abcd, filter);
     }
 }

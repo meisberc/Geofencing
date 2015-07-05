@@ -20,4 +20,6 @@
     <string name="exit">Exit</string>
     <string name="googlePlayError">Google Play Service is unavailable. Please check if Play Service is installed correctly!</string>
     <string name="googlePlay">Google Play Service Error</string>
+    <string name="exitError">Exiting the view will stop sending notifications. Do you really want to exit?</string>
+    <string name="exiting">Exit?</string>
 </resources>
