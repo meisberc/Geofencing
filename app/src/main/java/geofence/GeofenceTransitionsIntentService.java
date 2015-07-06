@@ -49,7 +49,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
     private String name;
     private String tourName;
 
-    protected static final String TAG = "geo-transitions-service";
+    public static final String TAG = "geo-transitions-service";
     public static final String STARTPOI = "startpoi";
     public static final String STOPPOI = "stoppoi";
 
@@ -190,7 +190,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         // Issue the notification
-        mNotificationManager.notify(0, builder.build());
+        mNotificationManager.notify(TAG, 0, builder.build());
 
     }
 

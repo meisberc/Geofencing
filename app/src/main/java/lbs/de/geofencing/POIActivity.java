@@ -1,5 +1,6 @@
 package lbs.de.geofencing;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -47,12 +48,17 @@ public class POIActivity extends AppCompatActivity {
         setupActivity();
 
         registerReceiver(abcd, new IntentFilter("xyz"));
+
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.cancel(GeofenceTransitionsIntentService.TAG,0);
     }
 
     public void setupActivity() {
         actionBar.setTitle(name);
         actionBar.setDefaultDisplayHomeAsUpEnabled(false);
         actionBar.setHomeButtonEnabled(false);
+        actionBar.setDisplayShowHomeEnabled(false);
         DbAdapter dbAdapter = MainActivity.getDbAdapter();
         dbAdapter.openRead();
         ((TextView) findViewById(R.id.textViewPOI)).setText(tourname);

@@ -60,16 +60,23 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
 
     private String tourName;
 
-    private final BroadcastReceiver abcd = new BroadcastReceiver() {
+    private final BroadcastReceiver startReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "onReceive()");
             if (intent.getAction().equals(GeofenceTransitionsIntentService.STARTPOI)) {
                 String point = intent.getExtras().getString(MapsActivity.POINT);
                 Intent i = new Intent(getApplicationContext(), POIActivity.class);
                 i.putExtra(POINT, point);
                 i.putExtra(MainActivity.TOURNAME, tourName);
+                Log.i(TAG, "startActivityForResult()");
+
+
+                LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient,getGeofencePendingIntent());
+                mGeofenceList.remove(0);
+                startReceiver.abortBroadcast();
                 startActivityForResult(i, 1);
-                Log.i(TAG, "onReceive()");
+
             }
         }
     };
@@ -93,6 +100,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     private Location myLocation;
     private int aktPointNr = 0;
     private Point newPoint;
+    private boolean comeFromResult;
 
 
     @Override
@@ -430,7 +438,13 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                 getGeofencingRequest(),
                 getGeofencePendingIntent()
         ).setResultCallback(this);
+        if (comeFromResult)
+        {
+            drawNewLine();
+            comeFromResult = false;
+        }
     }
+
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {
@@ -559,7 +573,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                 mGoogleApiClient.disconnect();
             }
         }
-        unregisterReceiver(abcd);
+        unregisterReceiver(startReceiver);
     }
 
     @Override
@@ -596,15 +610,17 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         Log.i(TAG, "onActivityResult()");
         if (resultCode == RESULT_OK && requestCode == 1) {
             if (mGoogleApiClient != null) {
+                Log.i(TAG, "mGoogleApiClient.connect()");
                 mGoogleApiClient.connect();
             } else {
+                Log.i(TAG, " buildGoogleApiClient()");
                 buildGoogleApiClient();
             }
 //            String name = intent.getExtras().getString(MapsActivity.POINT);
             tourName = intent.getExtras().getString(MainActivity.TOURNAME);
             dbAdapter.openWrite();
             points = dbAdapter.getPoints(tourName);
-            addMarkers();
+            comeFromResult = true;
             aktPointNr++;
             populateGeofenceList();
         }
@@ -633,9 +649,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mGoogleApiClient.connect();
-        LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient, getGeofencePendingIntent());
-        mGoogleApiClient.disconnect();
     }
 
     @Override
@@ -651,6 +664,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         // on pressing cancel button
         alertDialog.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
+                LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient,getGeofencePendingIntent());
                 MapsActivity.this.finish();
             }
         });
@@ -668,6 +682,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     public void registerBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(GeofenceTransitionsIntentService.STARTPOI);
-        registerReceiver(abcd, filter);
+        registerReceiver(startReceiver, filter);
     }
 }
