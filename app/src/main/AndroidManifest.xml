@@ -55,6 +55,16 @@
                 android:value=".MapsActivity" />
         </activity>
         <service android:name="geofence.GeofenceTransitionsIntentService" />
+
+        <activity
+            android:name=".POI2Activity"
+            android:label="@string/title_activity_poi2"
+            android:theme="@style/NoActionBar"
+            android:parentActivityName=".MapsActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="lbs.de.geofencing.MapsActivity" />
+        </activity>
     </application>
 
 </manifest>

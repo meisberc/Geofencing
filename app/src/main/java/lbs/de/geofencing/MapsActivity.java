@@ -8,10 +8,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.WindowManager;
@@ -26,6 +28,8 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -54,7 +58,7 @@ import gpstracker.GPSTracker;
 import path.HttpConnection;
 import path.PathJSONParser;
 
-public class MapsActivity extends FragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<Status> {
+public class MapsActivity extends FragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<Status>, LocationListener, GpsStatus.Listener {
     protected static final String TAG = "monitoring-geofences";
     public static final String POINT = "triggering-point";
 
@@ -66,13 +70,13 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
             Log.i(TAG, "onReceive()");
             if (intent.getAction().equals(GeofenceTransitionsIntentService.STARTPOI)) {
                 String point = intent.getExtras().getString(MapsActivity.POINT);
-                Intent i = new Intent(getApplicationContext(), POIActivity.class);
+                Intent i = new Intent(getApplicationContext(), POI2Activity.class);
                 i.putExtra(POINT, point);
                 i.putExtra(MainActivity.TOURNAME, tourName);
                 Log.i(TAG, "startActivityForResult()");
 
 
-                LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient,getGeofencePendingIntent());
+                LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient, getGeofencePendingIntent());
                 mGeofenceList.remove(0);
                 startReceiver.abortBroadcast();
                 startActivityForResult(i, 1);
@@ -92,6 +96,10 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
      */
     private boolean mGeofencesAdded;
 
+    /**
+     * Stores parameters for requests to the FusedLocationProviderApi.
+     */
+    private LocationRequest mLocationRequest;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private ArrayList<Point> points;
@@ -101,6 +109,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     private int aktPointNr = 0;
     private Point newPoint;
     private boolean comeFromResult;
+    private boolean firstStart = true;
 
 
     @Override
@@ -109,6 +118,8 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         setContentView(R.layout.activity_maps);
         Log.i(TAG, "on Create()");
 
+        setUpMapIfNeeded();
+        buildGoogleApiClient();
         /**
          *Prüfung, ob Google Play Services installiert sind, muss noch implementiert werden,
          * um direkte Crashes der App zu vermeiden.
@@ -118,45 +129,29 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
             showPlayServiceAlert();
         }
 
-        setUpMapIfNeeded();
+        tourName = getIntent().getExtras().getString(MainActivity.TOURNAME);
+        dbAdapter.openRead();
+        points = dbAdapter.getPoints(tourName);
 
-        GPSTracker tmpTracker = new GPSTracker(this);
-        tmpTracker.getLocation();
-        if (!tmpTracker.canGetLocation()) {
-            showSettingsAlert();
-        } else {
-            Location location = tmpTracker.getLocation();
-            myLocation = location;
-            centerMap(location);
-            CameraUpdate zoom = CameraUpdateFactory.zoomTo(18);
-            mMap.animateCamera(zoom);
-        }
-
-        if (getIntent().getExtras() != null) {
-            tourName = getIntent().getExtras().getString(MainActivity.TOURNAME);
-            dbAdapter.openRead();
-            points = dbAdapter.getPoints(tourName);
-            setup();
-
-        }
-        registerBroadcastReceiver();
-    }
-
-    private void setup() {
         // Empty list for storing geofences.
         mGeofenceList = new ArrayList<>();
 
-        buildGoogleApiClient();
+        populateGeofenceList();
 
         setUpListener();
-        if (points != null) {
-//            addMarkers();
-//            addNextMarker();
-            // Get the geofences used.
-            populateGeofenceList();
-            drawLineBetweenNextPoints();
-            addNextMarker();
-//            drawNewLine();
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if (!cameraMoved) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng
+                    (location.getLatitude(), location.getLongitude()), 18));
+            myLocation = location;
+            if (firstStart) {
+                drawNewLine();
+                firstStart = false;
+            }
         }
     }
 
@@ -213,6 +208,10 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng
                             (location.getLatitude(), location.getLongitude()), 18));
                     myLocation = location;
+                    if (firstStart) {
+                        drawNewLine();
+                        firstStart = false;
+                    }
 
                 }
             }
@@ -287,12 +286,12 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         return errorCode == ConnectionResult.SUCCESS;
     }
 
-    public void addMarkers() {
+    /*public void addMarkers() {
         for (Point p : points) {
             mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(p.getLatitude(), p.getLongitude())).title(p.getName()));
         }
-    }
+    }*/
 
     public void addNextMarker() {
         Point p = points.get(aktPointNr);
@@ -385,6 +384,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+        createLocationRequest();
     }
 
     /**
@@ -438,11 +438,12 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                 getGeofencingRequest(),
                 getGeofencePendingIntent()
         ).setResultCallback(this);
-        if (comeFromResult)
-        {
+        if (comeFromResult) {
             drawNewLine();
             comeFromResult = false;
         }
+
+        startLocationUpdates();
     }
 
 
@@ -484,6 +485,176 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         }
     }
 
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i(TAG, "onStart()");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG, "onStop()");
+        dbAdapter.close();
+        if (mGoogleApiClient != null) {
+            if (mGoogleApiClient.isConnected()) {
+                mGoogleApiClient.disconnect();
+            }
+        }
+        stopLocationUpdates();
+        unregisterReceiver(startReceiver);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG, "onResume()");
+
+        dbAdapter.openRead();
+        setUpMapIfNeeded();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        } else {
+            buildGoogleApiClient();
+        }
+        if (mGoogleApiClient.isConnected()) {
+            startLocationUpdates();
+        }
+        checkGPS();
+        registerBroadcastReceiver();
+    }
+
+    private GeofencingRequest getGeofencingRequest() {
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.addGeofences(mGeofenceList);
+        return builder.build();
+    }
+
+    private PendingIntent getGeofencePendingIntent() {
+        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+        intent.putExtra(MainActivity.TOURNAME, tourName);
+        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
+        // calling addGeofences() and removeGeofences().
+        return PendingIntent.getService(this, 0, intent, PendingIntent.
+                FLAG_UPDATE_CURRENT);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    Intent intent) {
+        Log.i(TAG, "onActivityResult()");
+        if (resultCode == RESULT_OK && requestCode == 1) {
+            if (mGoogleApiClient != null) {
+                Log.i(TAG, "mGoogleApiClient.connect()");
+                mGoogleApiClient.connect();
+            } else {
+                Log.i(TAG, " buildGoogleApiClient()");
+                buildGoogleApiClient();
+            }
+//            String name = intent.getExtras().getString(MapsActivity.POINT);
+            tourName = intent.getExtras().getString(MainActivity.TOURNAME);
+            dbAdapter.openWrite();
+            points = dbAdapter.getPoints(tourName);
+            comeFromResult = true;
+            aktPointNr++;
+
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        Log.i(TAG, "onSaveInstanceState()");
+        state.putString(MainActivity.TOURNAME, tourName);
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle state) {
+        super.onRestoreInstanceState(state);
+        Log.i(TAG, "onRestoreInstanceState()");
+
+        tourName = state.getString(MainActivity.TOURNAME);
+        dbAdapter.openRead();
+        points = dbAdapter.getPoints(tourName);
+        setUpMapIfNeeded();
+        addNextMarker();
+    }
+
+    @Override
+    public void onBackPressed() {
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+
+        // Setting Dialog Title
+        alertDialog.setTitle(R.string.exiting);
+
+        // Setting Dialog Message
+        alertDialog.setMessage(R.string.exitError);
+
+        // on pressing cancel button
+        alertDialog.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient, getGeofencePendingIntent());
+                MapsActivity.this.finish();
+            }
+        });
+
+        alertDialog.setPositiveButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        // Showing Alert Message
+        alertDialog.show();
+    }
+
+    public void registerBroadcastReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(GeofenceTransitionsIntentService.STARTPOI);
+        registerReceiver(startReceiver, filter);
+    }
+
+    public void checkGPS() {
+        GPSTracker tmpTracker = new GPSTracker(this);
+        tmpTracker.getLocation();
+        if (!tmpTracker.canGetLocation()) {
+            showSettingsAlert();
+        } else {
+            Location location = tmpTracker.getLocation();
+            myLocation = location;
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng
+                    (location.getLatitude(), location.getLongitude()), 18));
+           drawNewLine();
+        }
+    }
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(20000);
+        mLocationRequest.setFastestInterval(10000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
+    }
+
+    protected void stopLocationUpdates() {
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(
+                    mGoogleApiClient, this);
+        }
+    }
+
+    @Override
+    public void onGpsStatusChanged(int event) {
+        if (event == GpsStatus.GPS_EVENT_STOPPED) {
+            showSettingsAlert();
+        }
+    }
 
     private class ReadTask extends AsyncTask<String, Void, String> {
         @Override
@@ -557,131 +728,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i(TAG, "onStart()");
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.i(TAG, "onStop()");
-        dbAdapter.close();
-        if (mGoogleApiClient != null) {
-            if (mGoogleApiClient.isConnected()) {
-                mGoogleApiClient.disconnect();
-            }
-        }
-        unregisterReceiver(startReceiver);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.i(TAG, "onResume()");
-        dbAdapter = MainActivity.getDbAdapter();
-        dbAdapter.openRead();
-        setUpMapIfNeeded();
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient.connect();
-        }
-        registerBroadcastReceiver();
-    }
-
-    private GeofencingRequest getGeofencingRequest() {
-        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
-        builder.addGeofences(mGeofenceList);
-        return builder.build();
-    }
-
-    private PendingIntent getGeofencePendingIntent() {
-        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-        intent.putExtra(MainActivity.TOURNAME, tourName);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
-        // calling addGeofences() and removeGeofences().
-        return PendingIntent.getService(this, 0, intent, PendingIntent.
-                FLAG_UPDATE_CURRENT);
-    }
-
-    protected void onActivityResult(int requestCode, int resultCode,
-                                    Intent intent) {
-        Log.i(TAG, "onActivityResult()");
-        if (resultCode == RESULT_OK && requestCode == 1) {
-            if (mGoogleApiClient != null) {
-                Log.i(TAG, "mGoogleApiClient.connect()");
-                mGoogleApiClient.connect();
-            } else {
-                Log.i(TAG, " buildGoogleApiClient()");
-                buildGoogleApiClient();
-            }
-//            String name = intent.getExtras().getString(MapsActivity.POINT);
-            tourName = intent.getExtras().getString(MainActivity.TOURNAME);
-            dbAdapter.openWrite();
-            points = dbAdapter.getPoints(tourName);
-            comeFromResult = true;
-            aktPointNr++;
-            populateGeofenceList();
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle state) {
-        super.onSaveInstanceState(state);
-        Log.i(TAG, "onSaveInstanceState()");
-        state.putString(MainActivity.TOURNAME, tourName);
-
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle state) {
-        super.onRestoreInstanceState(state);
-        Log.i(TAG, "onRestoreInstanceState()");
-        tourName = state.getString(MainActivity.TOURNAME);
-        dbAdapter.openWrite();
-        points = dbAdapter.getPoints(tourName);
-
-//        addMarkers();
-        addNextMarker();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    public void onBackPressed() {
-        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-
-        // Setting Dialog Title
-        alertDialog.setTitle(R.string.exiting);
-
-        // Setting Dialog Message
-        alertDialog.setMessage(R.string.exitError);
-
-        // on pressing cancel button
-        alertDialog.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient,getGeofencePendingIntent());
-                MapsActivity.this.finish();
-            }
-        });
-
-        alertDialog.setPositiveButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        // Showing Alert Message
-        alertDialog.show();
-    }
-
-    public void registerBroadcastReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(GeofenceTransitionsIntentService.STARTPOI);
-        registerReceiver(startReceiver, filter);
-    }
 }
+
+

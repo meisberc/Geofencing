@@ -73,6 +73,22 @@ public class DbAdapter {
         return addPointsToList(test);
     }
 
+    public Point getPoint(String tourName, String pointName) {
+        Cursor test = setQuerry("SELECT p.name,p.Data ,p.longtitude, p.latitude, p.picture FROM PointsOfInterest as p" +
+                " LEFT JOIN PointsOfInterestAndTouren as pt on p._id = pt.POI_ID" +
+                " LEFT JOIN Touren as t on t._id = pt.Touren_ID\n" +
+                " WHERE t.Name LIKE \"" + tourName + "\";");
+        ArrayList<Point> point = addPointsToList(test);
+        for (Point p : point)
+        {
+            if (p.getName().equals(pointName))
+            {
+                return p;
+            }
+        }
+        return null;
+    }
+
     private ArrayList<Point> addPointsToList(Cursor c) {
         ArrayList<Point> data = new ArrayList<>();
         if (c.moveToFirst()) {

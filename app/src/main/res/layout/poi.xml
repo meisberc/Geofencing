@@ -1,5 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/NoActionBar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -7,19 +8,23 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity">
+    tools:context=".POI2Activity">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/pointName"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="12dp"
-        android:text="Vorhandene Touren:"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="50dp"/>
 
-    <ListView
-        android:id="@+id/listView"
+    <TextView
+        android:id="@+id/pointDesc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clickable="true" />
+        android:text="@string/hello_world"
+        android:layout_gravity="center_horizontal" />
+
 </LinearLayout>

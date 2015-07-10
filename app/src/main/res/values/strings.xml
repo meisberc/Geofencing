@@ -22,4 +22,5 @@
     <string name="googlePlay">Google Play Service Error</string>
     <string name="exitError">Exiting the view will stop sending notifications. Do you really want to exit?</string>
     <string name="exiting">Exit?</string>
+    <string name="title_activity_poi2" translatable="false">POI2Activity</string>
 </resources>
