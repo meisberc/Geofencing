@@ -139,7 +139,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         populateGeofenceList();
 
         setUpListener();
-
     }
 
     @Override
@@ -212,7 +211,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                         drawNewLine();
                         firstStart = false;
                     }
-
                 }
             }
         });
@@ -231,7 +229,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                     cameraMoved = false;
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng
                             (mMap.getMyLocation().getLatitude(), mMap.getMyLocation().getLongitude()), 18));
-
                 }
                 return false;
             }
@@ -285,13 +282,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         return errorCode == ConnectionResult.SUCCESS;
     }
-
-    /*public void addMarkers() {
-        for (Point p : points) {
-            mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(p.getLatitude(), p.getLongitude())).title(p.getName()));
-        }
-    }*/
 
     public void addNextMarker() {
         Point p = points.get(aktPointNr);
@@ -502,8 +492,15 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                 mGoogleApiClient.disconnect();
             }
         }
-        stopLocationUpdates();
+
         unregisterReceiver(startReceiver);
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        stopLocationUpdates();
     }
 
     @Override
@@ -579,7 +576,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         dbAdapter.openRead();
         points = dbAdapter.getPoints(tourName);
         setUpMapIfNeeded();
-        addNextMarker();
     }
 
     @Override
@@ -624,9 +620,8 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         } else {
             Location location = tmpTracker.getLocation();
             myLocation = location;
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng
-                    (location.getLatitude(), location.getLongitude()), 18));
-           drawNewLine();
+            centerMap(location);
+            drawNewLine();
         }
     }
 

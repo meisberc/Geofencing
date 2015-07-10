@@ -55,7 +55,7 @@ public class POI2Activity extends AppCompatActivity {
         DbAdapter dbAdapter = MainActivity.getDbAdapter();
         dbAdapter.openRead();
         ((TextView)findViewById(R.id.pointName)).setText(name);
-        ((TextView) findViewById(R.id.pointDesc)).setText(point.getDesc());
+        ((TextView) findViewById(R.id.pointDesc)).setText(point.getDesc().replace("\\n", "\n"));
     }
 
     @Override
