@@ -46,14 +46,7 @@
             android:name=".TourStartActivity"
             android:label="@string/title_activity_tour_start" >
         </activity>
-        <activity
-            android:name=".POIActivity"
-            android:label="@string/title_activity_poi"
-            android:parentActivityName=".MapsActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MapsActivity" />
-        </activity>
+
         <service android:name="geofence.GeofenceTransitionsIntentService" />
 
         <activity
