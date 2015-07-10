@@ -77,7 +77,7 @@ public class DbAdapter {
         Cursor test = setQuerry("SELECT p.name,p.Data ,p.longtitude, p.latitude, p.picture FROM PointsOfInterest as p" +
                 " LEFT JOIN PointsOfInterestAndTouren as pt on p._id = pt.POI_ID" +
                 " LEFT JOIN Touren as t on t._id = pt.Touren_ID\n" +
-                " WHERE t.Name LIKE \"" + tourName + "\";");
+                " WHERE t.Name LIKE \"" + tourName + "\" and p.name LIKE \""+pointName+"\";");
         ArrayList<Point> point = addPointsToList(test);
         for (Point p : point)
         {
