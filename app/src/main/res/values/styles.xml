@@ -6,8 +6,22 @@
     </style>
 
     <style name="NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
-
     </style>
 
+    <style name="Screens" parent="AppTheme">
+        <item name="android:background">@color/Screen</item>
+    </style>
+
+    <style name="MainText" parent="android:Widget.TextView">
+        <item name="android:background">@color/Screen</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="Desc" parent="android:Widget.TextView">
+        <item name="android:background">@color/Screen</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 
 </resources>

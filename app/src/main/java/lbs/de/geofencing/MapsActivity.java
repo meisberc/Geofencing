@@ -19,7 +19,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -478,15 +477,12 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
             // Update state and save in shared preferences.
             mGeofencesAdded = !mGeofencesAdded;
 
-            // Update the UI. Adding geofences enables the Remove Geofences button, and removing
-            // geofences enables the Add Geofences button.
-
-            Toast.makeText(
+            /*Toast.makeText(
                     this,
                     mGeofencesAdded ? "added" :
                             "removed",
                     Toast.LENGTH_SHORT
-            ).show();
+            ).show();*/
         } else {
             // Get the status code for the error and log it using a user-friendly message.
             String errorMessage = GeofenceErrorMessages.getErrorString(this,
@@ -568,7 +564,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                 Log.i(TAG, " buildGoogleApiClient()");
                 buildGoogleApiClient();
             }
-//            String name = intent.getExtras().getString(MapsActivity.POINT);
             tourName = intent.getExtras().getString(MainActivity.TOURNAME);
             dbAdapter.openWrite();
             points = dbAdapter.getPoints(tourName);
@@ -638,6 +633,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         }
         if (!tmpTracker.canGetLocation()) {
             showSettingsAlert();
+            tmpTracker.getLocation();
         } else {
             Location location = tmpTracker.getLocation();
             myLocation = location;

@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //ArrayAdapter um die ListView zu befüllen
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.listview_design, list);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

@@ -40,9 +40,8 @@ public class TourStartActivity extends AppCompatActivity {
          */
         dbAdapter.openRead();
         Tour tour = dbAdapter.getTour(name);
-//        tour.setDesc("Tour über Römische Bauten");
         ((TextView) findViewById(R.id.tourName)).setText(tour.getName());
-        ((TextView) findViewById(R.id.tourDesc)).setText(tour.getDesc());
+        ((TextView) findViewById(R.id.tourDesc)).setText(tour.getDesc().replace("\\n", "\n"));
 
     }
 

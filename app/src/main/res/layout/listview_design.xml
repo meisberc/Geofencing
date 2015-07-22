@@ -1,0 +1,10 @@
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/listViewDesign"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:minHeight="50dp"
+    android:paddingLeft="18dp"
+    android:paddingRight="18dp"
+    android:textSize="18sp"
+    android:textStyle="bold" />

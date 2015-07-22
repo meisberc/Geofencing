@@ -14,12 +14,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Tour Name"
         android:id="@+id/tourName"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="50dp"
-        />
+        android:layout_marginBottom="40dp"
+        style="@style/MainText"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -36,9 +35,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New Text"
                 android:id="@+id/tourDesc"
-                android:layout_gravity="center_horizontal" />
+                android:layout_gravity="center_horizontal"
+                style="@style/Desc"/>
 
             <ImageView
                 android:layout_width="109dp"
