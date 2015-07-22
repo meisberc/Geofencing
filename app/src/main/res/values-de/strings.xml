@@ -19,4 +19,7 @@
     <string name="exit">Beenden</string>
     <string name="exitError">Das Beenden der Ansicht beendet das Anzeigen von Benachrichtigungen. Möchten Sie wirklich beenden?</string>
     <string name="exiting">Beenden?</string>
+    <string name="connError">Internet-Verbindungsfehler</string>
+    <string name="connErrorText">Internetverbindung ist nicht verfügbar. Bitte überprüfen Sie die Verbindung!</string>
+    <string name="retry">Erneut versuchen</string>
 </resources>

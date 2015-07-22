@@ -1,6 +1,11 @@
 package lbs.de.geofencing;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -42,9 +47,20 @@ public class TourStartActivity extends AppCompatActivity {
     }
 
     public void startTour(View view) {
-        Intent i = new Intent(this, MapsActivity.class);
-        i.putExtra(MainActivity.TOURNAME, name);
-        startActivityForResult(i, REQUEST_CODE);
+        ConnectivityManager cm =
+                (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        if (isConnected) {
+            Intent i = new Intent(this, MapsActivity.class);
+            i.putExtra(MainActivity.TOURNAME, name);
+            startActivityForResult(i, REQUEST_CODE);
+        } else {
+            showConnectionAlert();
+        }
     }
 
     @Override
@@ -84,5 +100,25 @@ public class TourStartActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         dbAdapter.close();
+    }
+
+    private void showConnectionAlert() {
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+
+        // Setting Dialog Title
+        alertDialog.setTitle(R.string.connError);
+
+        // Setting Dialog Message
+        alertDialog.setMessage(R.string.connErrorText);
+
+        // On pressing Settings button
+        alertDialog.setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                startTour(null);
+            }
+        });
+        // Showing Alert Message
+        alertDialog.show();
     }
 }

@@ -23,4 +23,7 @@
     <string name="exitError">Exiting the view will stop sending notifications. Do you really want to exit?</string>
     <string name="exiting">Exit?</string>
     <string name="title_activity_poi2" translatable="false">POI2Activity</string>
+    <string name="connError">Internet Connection Error</string>
+    <string name="connErrorText">Internet connection is not available. Please check your connection!</string>
+    <string name="retry">Retry</string>
 </resources>

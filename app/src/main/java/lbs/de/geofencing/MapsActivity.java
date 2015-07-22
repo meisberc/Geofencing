@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.location.GpsStatus;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -80,7 +82,13 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                 mGeofenceList.remove(0);
                 startReceiver.abortBroadcast();
                 startActivityForResult(i, 1);
-
+            }
+            if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+                boolean connLost = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
+                isConnected = !connLost;
+                if (isConnected && !lineIsDrwan) {
+                    drawLineBetweenNextPoints();
+                }
             }
         }
     };
@@ -110,6 +118,10 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     private Point newPoint;
     private boolean comeFromResult;
     private boolean firstStart = true;
+    private boolean isConnected;
+    private boolean lineIsDrwan;
+
+    private GPSTracker tmpTracker;
 
 
     @Override
@@ -117,6 +129,13 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         Log.i(TAG, "on Create()");
+
+        ConnectivityManager cm =
+                (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
 
         setUpMapIfNeeded();
         buildGoogleApiClient();
@@ -139,6 +158,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         populateGeofenceList();
 
         setUpListener();
+
     }
 
     @Override
@@ -497,8 +517,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     }
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         super.onDestroy();
         stopLocationUpdates();
     }
@@ -592,6 +611,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         alertDialog.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient, getGeofencePendingIntent());
+                tmpTracker.stopUsingGPS();
                 MapsActivity.this.finish();
             }
         });
@@ -613,8 +633,9 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     }
 
     public void checkGPS() {
-        GPSTracker tmpTracker = new GPSTracker(this);
-        tmpTracker.getLocation();
+        if (tmpTracker == null) {
+            tmpTracker = new GPSTracker(this);
+        }
         if (!tmpTracker.canGetLocation()) {
             showSettingsAlert();
         } else {
@@ -660,7 +681,9 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                 data = http.readUrl(url[0]);
             } catch (Exception e) {
                 Log.d("Background Task", e.toString());
+                lineIsDrwan = false;
             }
+            lineIsDrwan = !data.equals("");
             return data;
         }
 
@@ -725,5 +748,3 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
 
 
 }
-
-
