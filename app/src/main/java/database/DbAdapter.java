@@ -133,7 +133,7 @@ public class DbAdapter {
             c.moveToFirst();
             if(c.getString(0).equals(name))
             {
-                
+
                 tour = new Tour(c.getString(0),c.getString(1));
                 //tour = new Tour(c.getString(0),"");
             }
