@@ -6,6 +6,7 @@
     </style>
 
     <style name="NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:background">@color/Screen</item>
     </style>
 
     <style name="Screens" parent="AppTheme">

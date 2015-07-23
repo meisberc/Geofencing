@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import database.DbAdapter;
@@ -56,6 +57,7 @@ public class POI2Activity extends AppCompatActivity {
         dbAdapter.openRead();
         ((TextView)findViewById(R.id.pointName)).setText(name);
         ((TextView) findViewById(R.id.pointDesc)).setText(point.getDesc().replace("\\n", "\n"));
+        ((ImageView) findViewById(R.id.image)).setImageBitmap(point.getBitmap());
     }
 
     @Override

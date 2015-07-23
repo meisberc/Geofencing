@@ -26,4 +26,5 @@
     <string name="connError">Internet Connection Error</string>
     <string name="connErrorText">Internet connection is not available. Please check your connection!</string>
     <string name="retry">Retry</string>
+    <string name="image_poi">image</string>
 </resources>
