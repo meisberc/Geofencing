@@ -10,10 +10,10 @@ import android.graphics.BitmapFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 
-/*
-* DbAdapter
-* Todo soweit alles fertig. Bereich betreten und verlassen wird von der Geofencing API von google übernommen
-* Todo lediglich die Methode für die Freie Tour muss nur noch implementiert werden. Diese ist allerdings optional.
+/**
+ * DbAdapter
+ * erstellt von Fabian Emmesberger
+ * hier werden alle Operationen auf der Datenbank ausgeführt.
  */
 
 public class DbAdapter {
@@ -21,6 +21,10 @@ public class DbAdapter {
     private SQLiteDatabase database;
     private DataBase dataBase;
 
+    /**
+     * Konstruktor - Datenbank wird beim Anlegen auf das Gerät kopiert.
+     * @param context Context der Main_Activity
+     */
     public DbAdapter(Context context) {
         dataBase = new DataBase(context);
         openWrite();
@@ -28,23 +32,43 @@ public class DbAdapter {
         close();
     }
 
+    /**
+     * Öffnet die Datenbank mit schreibendem Zugriff
+     * @throws SQLException
+     */
     public void openWrite() throws SQLException {
         database = dataBase.getWritableDatabase();
     }
 
+    /**
+     * Öffnet die Datenbank mit lesendem Zugriff
+     * @throws SQLException
+     */
     public void openRead() throws SQLException {
         database = dataBase.getReadableDatabase();
     }
 
+    /**
+     * Schließt den Datenbankzugriff
+     */
     public void close() {
         dataBase.close();
     }
 
+    /**
+     * Gibt alle vorhandenen Touren als String zurück
+     * @return ArrayList<String>
+     */
     public ArrayList<String> getTouren() {
         Cursor temp = setQuerry("SELECT Name FROM Touren");
         return addDataToList(temp);
     }
 
+    /**
+     * Sucht geforderte Daten in der Datenbank und gibt diese zurück
+     * @param c Cursor, der über die Tabelle der Datenbank läuft
+     * @return ArrayList<String>
+     */
     private ArrayList<String> addDataToList(Cursor c) {
         ArrayList<String> data = new ArrayList<>();
         //int i=1;
@@ -60,11 +84,20 @@ public class DbAdapter {
         return data;
     }
 
+    /**
+     * Setzt SQL-Statement in Cursor um
+     * @param querry SQL-Statement
+     * @return Cursor
+     */
     private Cursor setQuerry(String querry) {
         return database.rawQuery(querry, null);
     }
 
-
+    /**
+     * Gibt alle Punkte einer Tour zurück
+     * @param tourName Name der Tour
+     * @return ArrayList<Point>
+     */
     public ArrayList<Point> getPoints(String tourName) {
         Cursor test = setQuerry("SELECT p.name,p.Data ,p.longtitude, p.latitude, p.picture FROM PointsOfInterest as p" +
                 " LEFT JOIN PointsOfInterestAndTouren as pt on p._id = pt.POI_ID" +
@@ -73,12 +106,18 @@ public class DbAdapter {
         return addPointsToList(test);
     }
 
+    /**
+     * Gibt einen bestimmten Punkte einer Tour zurück
+     * @param tourName Name der Tour
+     * @param pointName Name des Punktes
+     * @return Point
+     */
     public Point getPoint(String tourName, String pointName) {
-        Cursor test = setQuerry("SELECT p.name,p.Data ,p.longtitude, p.latitude, p.picture FROM PointsOfInterest as p" +
+        Cursor c = setQuerry("SELECT p.name,p.Data ,p.longtitude, p.latitude, p.picture FROM PointsOfInterest as p" +
                 " LEFT JOIN PointsOfInterestAndTouren as pt on p._id = pt.POI_ID" +
                 " LEFT JOIN Touren as t on t._id = pt.Touren_ID\n" +
                 " WHERE t.Name LIKE \"" + tourName + "\" and p.name LIKE \""+pointName+"\";");
-        ArrayList<Point> point = addPointsToList(test);
+        ArrayList<Point> point = addPointsToList(c);
         for (Point p : point)
         {
             if (p.getName().equals(pointName))
@@ -89,6 +128,11 @@ public class DbAdapter {
         return null;
     }
 
+    /**
+     * Fügt die geforderten Punkte einer ArrayList hinzu
+     * @param c enhält Daten zur Verarbeitung
+     * @return ArrayList<Point>
+     */
     private ArrayList<Point> addPointsToList(Cursor c) {
         ArrayList<Point> data = new ArrayList<>();
         if (c.moveToFirst()) {
@@ -105,6 +149,11 @@ public class DbAdapter {
         return data;
     }
 
+    /**
+     * Punkt wird aus dem Cursor generiert
+     * @param cursor enhält Daten zur Verarbeitung
+     * @return Point
+     */
     private Point cursorToEntryPoints(Cursor cursor) {
         byte [] image=cursor.getBlob(4);
         Bitmap picture;
@@ -114,6 +163,9 @@ public class DbAdapter {
                 cursor.getDouble(2), cursor.getDouble(3), picture);
     }
 
+    /**
+     * Kopiert die Datenbank aufs Gerät
+     */
     public void copyDb() {
         try {
             dataBase.copyDataBase();
@@ -122,11 +174,22 @@ public class DbAdapter {
         }
     }
 
+    /**
+     * Gibt eine Tour zurück
+     * @param name Name der Tour
+     * @return Tour
+     */
     public Tour getTour(String name) {
-        Cursor temp = setQuerry("SELECT Name, Data FROM Touren");
-        return addDataToTour(temp, name);
+        Cursor c = setQuerry("SELECT Name, Data FROM Touren");
+        return addDataToTour(c, name);
     }
 
+    /**
+     * Fügt die Daten einer Tour hinzu
+     * @param c enhält Daten zur Verarbeitung
+     * @param name Name der Tour
+     * @return ArrayList<Point>
+     */
     private Tour addDataToTour(Cursor c, String name) {
         Tour tour = null;
         if (c.moveToFirst()) {

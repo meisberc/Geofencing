@@ -2,6 +2,9 @@ package database;
 
 import android.graphics.Bitmap;
 
+/**
+ * Erstellt von Christian Meisberger
+ */
 public class Point {
     private String name;
     private String desc;

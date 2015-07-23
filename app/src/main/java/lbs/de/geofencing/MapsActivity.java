@@ -59,11 +59,13 @@ import gpstracker.GPSTracker;
 import path.HttpConnection;
 import path.PathJSONParser;
 
+/**
+ * Erstellt von Christian Meisberger
+ */
 public class MapsActivity extends FragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<Status>, LocationListener, GpsStatus.Listener {
     protected static final String TAG = "monitoring-geofences";
     public static final String POINT = "triggering-point";
 
-    private String tourName;
 
     private final BroadcastReceiver startReceiver = new BroadcastReceiver() {
         @Override
@@ -71,7 +73,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
             Log.i(TAG, "onReceive()");
             if (intent.getAction().equals(GeofenceTransitionsIntentService.STARTPOI)) {
                 String point = intent.getExtras().getString(MapsActivity.POINT);
-                Intent i = new Intent(getApplicationContext(), POI2Activity.class);
+                Intent i = new Intent(getApplicationContext(), POIActivity.class);
                 i.putExtra(POINT, point);
                 i.putExtra(MainActivity.TOURNAME, tourName);
                 Log.i(TAG, "startActivityForResult()");
@@ -92,22 +94,10 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         }
     };
 
-    //     Provides the entry point to Google Play services.
     protected GoogleApiClient mGoogleApiClient;
-
-    //     The list of geofences used in this sample
     protected ArrayList<Geofence> mGeofenceList;
-
-    /**
-     * Used to keep track of whether geofences were added.
-     */
     private boolean mGeofencesAdded;
-
-    /**
-     * Stores parameters for requests to the FusedLocationProviderApi.
-     */
     private LocationRequest mLocationRequest;
-
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private ArrayList<Point> points;
     private DbAdapter dbAdapter = MainActivity.getDbAdapter();
@@ -119,9 +109,8 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     private boolean firstStart = true;
     private boolean isConnected;
     private boolean lineIsDrwan;
-
+    private String tourName;
     private GPSTracker tmpTracker;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,7 +164,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
 
     private void drawNewLine() {
         mMap.clear();
-//        addMarkers();
         addNextMarker();
         drawLineBetweenNextPoints();
     }
@@ -339,12 +327,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
 
     }
 
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
     private void setUpMap() {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         GoogleMapOptions options = new GoogleMapOptions();
@@ -396,10 +378,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         createLocationRequest();
     }
 
-    /**
-     * This sample hard codes geofence data. A real app might dynamically create geofences based on
-     * the user's location.
-     */
     public void populateGeofenceList() {
         HashMap<String, LatLng> geo = new HashMap<>();
         for (int i = aktPointNr; i < points.size(); i++) {
@@ -454,7 +432,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
 
         startLocationUpdates();
     }
-
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {

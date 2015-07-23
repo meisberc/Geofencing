@@ -1,7 +1,7 @@
 package database;
 
 /**
- * Created by Christian Meisberger on 25.06.2015.
+ * Erstellt von Christian Meisberger
  */
 public class Tour {
     private String name;

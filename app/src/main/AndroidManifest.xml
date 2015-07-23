@@ -50,7 +50,7 @@
         <service android:name="geofence.GeofenceTransitionsIntentService" />
 
         <activity
-            android:name=".POI2Activity"
+            android:name=".POIActivity"
             android:label="@string/title_activity_poi2"
             android:theme="@style/NoActionBar"
             android:parentActivityName=".MapsActivity" >

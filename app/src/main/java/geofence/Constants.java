@@ -17,7 +17,8 @@
 package geofence;
 
 /**
- * Constants used in this sample.
+ * Constants used in this App
+ * Eingefügt von Christian Meisberger, Auszug aus der Google Geofencing API
  */
 public final class Constants {
 
@@ -34,5 +35,5 @@ public final class Constants {
      */
     public static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS =
             GEOFENCE_EXPIRATION_IN_HOURS * 60 * 60 * 1000;
-    public static final float GEOFENCE_RADIUS_IN_METERS = 30; // 1 mile, 1.6 km
+    public static final float GEOFENCE_RADIUS_IN_METERS = 50; // 1 mile, 1.6 km
 }

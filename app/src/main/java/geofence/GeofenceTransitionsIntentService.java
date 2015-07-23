@@ -39,6 +39,7 @@ import lbs.de.geofencing.R;
 
 /**
  * Listener for geofence transition changes.
+ * Eingefügt von Christian Meisberger, Auszug aus der Google Geofencing API.
  *
  * Receives geofence transition events from Location Services in the form of an Intent containing
  * the transition type and geofence id(s) that triggered the transition. Creates a notification
@@ -143,7 +144,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
     /**
      * Posts a notification in the notification bar when a transition is detected.
-     * If the user clicks the notification, control goes to the MainActivity.
+     * If the user clicks the notification, control goes to the MapsActivity -> POIActivity.
      */
     private void sendNotification(String notificationDetails) {
         // Create an explicit content Intent that starts the main Activity.
@@ -152,15 +153,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
         notificationIntent.putExtra(MapsActivity.POINT, name);
         notificationIntent.putExtra(MainActivity.TOURNAME, tourName);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-       /* // Construct a task stack.
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 
-        // Add the main Activity to the task stack as the parent.
-        stackBuilder.addParentStack(POIActivity.class);
-
-        // Push the content Intent onto the stack.
-        stackBuilder.addNextIntent(notificationIntent);
-*/
         // Get a PendingIntent containing the entire back stack.
         PendingIntent notificationPendingIntent =
 //                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -191,7 +184,6 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
         // Issue the notification
         mNotificationManager.notify(TAG, 0, builder.build());
-
     }
 
     /**

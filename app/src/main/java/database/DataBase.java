@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * DataBase Funktion, jede Anfrage an die Datebank wird hier gehandelt!
+ * Datenbank wird hier auf das Gerät kopiert
  */
 public class DataBase extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
@@ -38,10 +38,9 @@ public class DataBase extends SQLiteOpenHelper {
     }
 
     protected void copyDataBase() throws IOException {
-
         // Open your local db as the input stream
         InputStream myInput = myContext.getAssets().open(DATABASE_NAME);
-        // Path to the just created empty db
+        // Path to the db
         String outpathName = "/data/data/";
         String outFileName = outpathName
                 + myContext.getApplicationContext().getPackageName()

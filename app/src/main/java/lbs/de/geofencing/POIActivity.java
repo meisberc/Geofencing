@@ -16,8 +16,10 @@ import android.widget.TextView;
 import database.DbAdapter;
 import database.Point;
 import geofence.GeofenceTransitionsIntentService;
-
-public class POI2Activity extends AppCompatActivity {
+/**
+ * Erstellt von Christian Meisberger
+ */
+public class POIActivity extends AppCompatActivity {
 
     private String name;
     private Point point;

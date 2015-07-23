@@ -25,6 +25,7 @@ import lbs.de.geofencing.R;
 
 /**
  * Geofence error codes mapped to error messages.
+ * Eingefügt von Christian Meisberger, Auszug aus der Google Geofencing API
  */
 public class GeofenceErrorMessages {
     /**
