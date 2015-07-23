@@ -1,15 +1,18 @@
 package path;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.android.gms.maps.model.LatLng;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
+/**
+ * Eingefügt von Christian Meisberger, Auszug aus der Google Directions API
+ */
 public class PathJSONParser {
 
 	public List<List<HashMap<String, String>>> parse(JSONObject jObject) {
