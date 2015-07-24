@@ -48,16 +48,14 @@
                 android:layout_gravity="center_horizontal"
                 style="@style/Desc"/>
 
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/startTour"
+                android:id="@+id/startTour"
+                android:layout_gravity="center_horizontal"
+                android:onClick="startTour"
+                android:textStyle="normal" />
         </LinearLayout>
     </ScrollView>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/startTour"
-        android:id="@+id/startTour"
-        android:layout_gravity="center_horizontal"
-        android:onClick="startTour"
-        android:textStyle="normal" />
-
 </LinearLayout>
