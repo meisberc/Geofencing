@@ -66,7 +66,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     protected static final String TAG = "monitoring-geofences";
     public static final String POINT = "triggering-point";
 
-
+    // Broadcast Receiver to start POIActivity on receiving Geofencing-Enter
     private final BroadcastReceiver startReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -96,19 +96,19 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
 
     protected GoogleApiClient mGoogleApiClient;
     protected ArrayList<Geofence> mGeofenceList;
-    private boolean mGeofencesAdded;
+    private boolean mGeofencesAdded; // true if geofences have been added
     private LocationRequest mLocationRequest;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private ArrayList<Point> points;
     private DbAdapter dbAdapter = MainActivity.getDbAdapter();
-    private boolean cameraMoved;
+    private boolean cameraMoved; // true if map is moved
     private Location myLocation;
     private int aktPointNr = 0;
     private Point newPoint;
-    private boolean comeFromResult;
+    private boolean comeFromResult; // true if resume from POIActivity
     private boolean firstStart = true;
-    private boolean isConnected;
-    private boolean lineIsDrwan;
+    private boolean isConnected; // true if internet is connected
+    private boolean lineIsDrwan; // true if line is drawn
     private String tourName;
     private GPSTracker tmpTracker;
 
@@ -117,6 +117,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        // check internet connection
         ConnectivityManager cm =
                 (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -124,8 +125,10 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         isConnected = activeNetwork != null &&
                 activeNetwork.isConnectedOrConnecting();
 
+
         setUpMapIfNeeded();
         buildGoogleApiClient();
+
         /**
          *Prüfung, ob Google Play Services installiert sind, muss noch implementiert werden,
          * um direkte Crashes der App zu vermeiden.
@@ -147,6 +150,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         setUpListener();
     }
 
+    // Listener for location changes
     @Override
     public void onLocationChanged(Location location) {
         if (!cameraMoved) {
@@ -160,12 +164,14 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         }
     }
 
+    // clear map, set next marker an draw line between your location and new point
     private void drawNewLine() {
         mMap.clear();
         addNextMarker();
         drawLineBetweenNextPoints();
     }
 
+    // alert is shown if Google Play Service has Error
     private void showPlayServiceAlert() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 
@@ -186,6 +192,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         alertDialog.show();
     }
 
+    // show alert when tour has finished
     private void showTourFinishedAlert() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 
@@ -206,6 +213,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         alertDialog.show();
     }
 
+    // draw the line between your location and the new poi
     private void drawLineBetweenNextPoints() {
         Point oldPoint;
         if (aktPointNr == 0) {
@@ -223,8 +231,8 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         downloadTask.execute(url);
     }
 
+    // Listener for map and myLocationButton
     private void setUpListener() {
-
         mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
             @Override
             public void onMyLocationChange(Location location) {
@@ -268,6 +276,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         });
     }
 
+    // Center map to location
     public void centerMap(Location location) {
         if (location != null) {
             CameraUpdate center =
@@ -278,6 +287,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         }
     }
 
+    // generate URL for Directions API
     private String getDirectionsUrl(LatLng origin, LatLng dest) {
 
         // Origin of route
@@ -382,6 +392,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         alertDialog.show();
     }
 
+    // build Google API Client
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -391,6 +402,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         createLocationRequest();
     }
 
+    // generate Geofences for Service
     public void populateGeofenceList() {
         HashMap<String, LatLng> geo = new HashMap<>();
         for (int i = aktPointNr; i < points.size(); i++) {
@@ -484,7 +496,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                 mGoogleApiClient.disconnect();
             }
         }
-
         unregisterReceiver(startReceiver);
     }
 
@@ -512,6 +523,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         registerBroadcastReceiver();
     }
 
+
     private GeofencingRequest getGeofencingRequest() {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
         builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
@@ -528,6 +540,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                 FLAG_UPDATE_CURRENT);
     }
 
+    // return from POIActivity
     protected void onActivityResult(int requestCode, int resultCode,
                                     Intent intent) {
         if (resultCode == RESULT_OK && requestCode == 1) {
@@ -555,7 +568,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
         state.putString(MainActivity.TOURNAME, tourName);
-
     }
 
     @Override
@@ -568,6 +580,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         setUpMapIfNeeded();
     }
 
+    // when back button is pressed show alert dialog
     @Override
     public void onBackPressed() {
         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
@@ -603,6 +616,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         registerReceiver(startReceiver, filter);
     }
 
+    // check if Location is available
     public void checkGPS() {
         if (tmpTracker == null) {
             tmpTracker = new GPSTracker(this);
@@ -620,8 +634,8 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(20000);
-        mLocationRequest.setFastestInterval(10000);
+        mLocationRequest.setInterval(30000);
+        mLocationRequest.setFastestInterval(20000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -637,6 +651,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         }
     }
 
+    // show alert if GPS is turned off
     @Override
     public void onGpsStatusChanged(int event) {
         if (event == GpsStatus.GPS_EVENT_STOPPED) {
@@ -644,6 +659,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         }
     }
 
+    // private Class to get direction from API
     private class ReadTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... url) {
@@ -666,6 +682,7 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         }
     }
 
+    // private Class to parse points from Directions API
     private class ParserTask extends
             AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
 
