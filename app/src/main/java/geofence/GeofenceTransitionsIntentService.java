@@ -111,7 +111,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
             Log.e(TAG, getString(R.string.geofence_transition_invalid_type, geofenceTransition));
         }
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-            Intent stop = new Intent("xyz");
+            Intent stop = new Intent("exitPOI");
             stop.setAction(STOPPOI);
             sendBroadcast(stop);
         }

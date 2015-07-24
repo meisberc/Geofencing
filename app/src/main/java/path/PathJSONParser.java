@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Eingefügt von Christian Meisberger, Auszug aus der Google Directions API
+ * Eingefügt von Fabian Ebel, Auszug aus der Google Directions API
  */
 public class PathJSONParser {
 

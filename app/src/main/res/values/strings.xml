@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Geführte Touren</string>
+    <string name="app_name" translatable="false">getGuided</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
@@ -26,5 +26,8 @@
     <string name="connError">Internet Connection Error</string>
     <string name="connErrorText">Internet connection is not available. Please check your connection!</string>
     <string name="retry">Retry</string>
-    <string name="image_poi">image</string>
+    <string name="image_poi" translatable="false">image_poi</string>
+    <string name="knownTours">Known Tours</string>
+    <string name="startTour">Start Tour</string>
+    <string name="image_tourStart" translatable="false">image_tourStart</string>
 </resources>

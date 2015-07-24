@@ -1,3 +1,4 @@
+<!--Erstellt von Christian Meisberger-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -22,15 +23,23 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/scrollView"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="1" >
+        android:layout_height="fill_parent">
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:contentDescription="@string/image_tourStart"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -39,18 +48,13 @@
                 android:layout_gravity="center_horizontal"
                 style="@style/Desc"/>
 
-            <ImageView
-                android:layout_width="109dp"
-                android:layout_height="109dp"
-                android:id="@+id/imageView"
-                android:layout_gravity="center_horizontal" />
         </LinearLayout>
     </ScrollView>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Starte Tour"
+        android:text="@string/startTour"
         android:id="@+id/startTour"
         android:layout_gravity="center_horizontal"
         android:onClick="startTour"

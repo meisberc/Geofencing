@@ -10,7 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Eingefügt von Christian Meisberger, Auszug aus der Google Directions API
+ * Eingefügt von Fabian Ebel, Auszug aus der Google Directions API
  */
 public class HttpConnection {
 	public String readUrl(String mapsApiDirectionsUrl) throws IOException {

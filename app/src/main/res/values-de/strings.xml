@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Geführte Touren</string>
     <string name="action_settings">Einstellungen</string>
     <string name="gps_not_enabled">GPS ist nicht aktiviert. Möchten Sie es in den Einstellungen aktivieren?</string>
     <string name="gps_settings">GPS Einstellung</string>
@@ -22,4 +21,6 @@
     <string name="connError">Internet-Verbindungsfehler</string>
     <string name="connErrorText">Internetverbindung ist nicht verfügbar. Bitte überprüfen Sie die Verbindung!</string>
     <string name="retry">Erneut versuchen</string>
+    <string name="knownTours">Vorhandene Touren:</string>
+    <string name="startTour">Starte Tour</string>
 </resources>

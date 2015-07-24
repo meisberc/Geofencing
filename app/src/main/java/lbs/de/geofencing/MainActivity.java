@@ -13,15 +13,15 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 import database.DbAdapter;
+/**
+ * Erstellt von Daniel Schnitzius
+ */
 
 public class MainActivity extends AppCompatActivity {
-
-
 
     public static final String TOURNAME = "geofencing.tourName";
 
     private static DbAdapter dbAdapter;
-    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,14 +29,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         dbAdapter = new DbAdapter(this);
-
+        dbAdapter.openRead();
 
         final ListView listView = (ListView) findViewById(R.id.listView);
-
-        dbAdapter.openRead();
         final ArrayList<String> list = dbAdapter.getTouren();
-
-
 
         //ArrayAdapter um die ListView zu befüllen
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.listview_design, list);
@@ -50,6 +46,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Startet öffnet genaue Ansicht einer ausgewhälten Tour
+     * @param name Name der angeklickten Tour
+     */
     public void startTourStartActivity(String name) {
         Intent i = new Intent(this, TourStartActivity.class);
         i.putExtra(MainActivity.TOURNAME, name);
@@ -78,10 +78,17 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
     protected void onStop() {
         super.onStop();
         dbAdapter.close();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        dbAdapter.openRead();
     }
 
     public static DbAdapter getDbAdapter() {

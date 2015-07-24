@@ -11,7 +11,6 @@ import android.os.IBinder;
 import android.util.Log;
 /**
  * Erstellt von Christian Meisberger
- *
  */
 public class GPSTracker extends Service implements LocationListener {
 

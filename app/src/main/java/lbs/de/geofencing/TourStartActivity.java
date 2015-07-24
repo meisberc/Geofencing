@@ -15,7 +15,9 @@ import android.widget.TextView;
 
 import database.DbAdapter;
 import database.Tour;
-
+/**
+ * Erstellt von Christian Meisberger
+ */
 public class TourStartActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 1;
@@ -44,6 +46,7 @@ public class TourStartActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.tourDesc)).setText(tour.getDesc().replace("\\n", "\n"));
 
     }
+
 
     public void startTour(View view) {
         ConnectivityManager cm =
