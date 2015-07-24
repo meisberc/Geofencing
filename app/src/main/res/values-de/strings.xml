@@ -23,4 +23,6 @@
     <string name="retry">Erneut versuchen</string>
     <string name="knownTours">Vorhandene Touren:</string>
     <string name="startTour">Starte Tour</string>
+    <string name="finished_msg">Die Tour ist nun beendet. Danke, dass Sie getGuided für diese Tour genutzt haben!</string>
+    <string name="tourFinished">Tour beendet!</string>
 </resources>

@@ -116,7 +116,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        Log.i(TAG, "on Create()");
 
         ConnectivityManager cm =
                 (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -146,7 +145,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         populateGeofenceList();
 
         setUpListener();
-
     }
 
     @Override
@@ -181,6 +179,26 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         alertDialog.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 System.exit(0);
+            }
+        });
+
+        // Showing Alert Message
+        alertDialog.show();
+    }
+
+    private void showTourFinishedAlert() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+
+        // Setting Dialog Title
+        alertDialog.setTitle(R.string.tourFinished);
+
+        // Setting Dialog Message
+        alertDialog.setMessage(R.string.finished_msg);
+
+        // on pressing cancel button
+        alertDialog.setNegativeButton(R.string.exit, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
             }
         });
 
@@ -240,7 +258,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                 return false;
             }
         });
-
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -321,10 +338,8 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
-
             }
         }
-
     }
 
     private void setUpMap() {
@@ -337,8 +352,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                 .mapType(GoogleMap.MAP_TYPE_NORMAL)
                 .mapToolbarEnabled(false);
         mMap.setMyLocationEnabled(true);
-
-
     }
 
     public void showSettingsAlert() {
@@ -411,7 +424,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
                             // Create the geofence.
                     .build());
         }
-
     }
 
     /**
@@ -454,12 +466,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
             // Update state and save in shared preferences.
             mGeofencesAdded = !mGeofencesAdded;
 
-            /*Toast.makeText(
-                    this,
-                    mGeofencesAdded ? "added" :
-                            "removed",
-                    Toast.LENGTH_SHORT
-            ).show();*/
         } else {
             // Get the status code for the error and log it using a user-friendly message.
             String errorMessage = GeofenceErrorMessages.getErrorString(this,
@@ -468,17 +474,9 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
         }
     }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i(TAG, "onStart()");
-    }
-
     @Override
     protected void onStop() {
         super.onStop();
-        Log.i(TAG, "onStop()");
         dbAdapter.close();
         if (mGoogleApiClient != null) {
             if (mGoogleApiClient.isConnected()) {
@@ -498,7 +496,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG, "onResume()");
 
         dbAdapter.openRead();
         setUpMapIfNeeded();
@@ -532,8 +529,11 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
 
     protected void onActivityResult(int requestCode, int resultCode,
                                     Intent intent) {
-        Log.i(TAG, "onActivityResult()");
         if (resultCode == RESULT_OK && requestCode == 1) {
+            if(mGeofenceList.size() == 0)
+            {
+                showTourFinishedAlert();
+            }
             if (mGoogleApiClient != null) {
                 Log.i(TAG, "mGoogleApiClient.connect()");
                 mGoogleApiClient.connect();
@@ -553,7 +553,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     @Override
     protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
-        Log.i(TAG, "onSaveInstanceState()");
         state.putString(MainActivity.TOURNAME, tourName);
 
     }
@@ -561,7 +560,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle state) {
         super.onRestoreInstanceState(state);
-        Log.i(TAG, "onRestoreInstanceState()");
 
         tourName = state.getString(MainActivity.TOURNAME);
         dbAdapter.openRead();
@@ -714,10 +712,6 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
             }
 
             mMap.addPolyline(polyLineOptions);
-
         }
-
     }
-
-
 }

@@ -30,4 +30,6 @@
     <string name="knownTours">Known Tours</string>
     <string name="startTour">Start Tour</string>
     <string name="image_tourStart" translatable="false">image_tourStart</string>
+    <string name="tourFinished">Tour finished</string>
+    <string name="finished_msg">This tour has finished now. Thank you for using getGuided!</string>
 </resources>
