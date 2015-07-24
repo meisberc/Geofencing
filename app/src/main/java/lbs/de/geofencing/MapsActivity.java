@@ -432,16 +432,17 @@ public class MapsActivity extends FragmentActivity implements ConnectionCallback
     @Override
     public void onConnected(Bundle connectionHint) {
         Log.i(TAG, "Connected to GoogleApiClient");
-        LocationServices.GeofencingApi.addGeofences(
-                mGoogleApiClient,
-                getGeofencingRequest(),
-                getGeofencePendingIntent()
-        ).setResultCallback(this);
-        if (comeFromResult) {
-            drawNewLine();
-            comeFromResult = false;
+        if(mGeofenceList.size() != 0) {
+            LocationServices.GeofencingApi.addGeofences(
+                    mGoogleApiClient,
+                    getGeofencingRequest(),
+                    getGeofencePendingIntent()
+            ).setResultCallback(this);
+            if (comeFromResult) {
+                drawNewLine();
+                comeFromResult = false;
+            }
         }
-
         startLocationUpdates();
     }
 

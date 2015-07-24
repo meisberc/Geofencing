@@ -46,7 +46,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/tourDesc"
                 android:layout_gravity="center_horizontal"
-                style="@style/Desc"/>
+                style="@style/Desc"
+                android:layout_marginBottom="30dp" />
 
             <Button
                 android:layout_width="wrap_content"
@@ -55,7 +56,8 @@
                 android:id="@+id/startTour"
                 android:layout_gravity="center_horizontal"
                 android:onClick="startTour"
-                android:textStyle="normal" />
+                android:textStyle="normal"
+                android:layout_marginTop="30dp" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
